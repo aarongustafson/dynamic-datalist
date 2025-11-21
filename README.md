@@ -1,6 +1,10 @@
-# dynamic-datalist
+# Dynamic `datalist` Web Component
 
-A web component that enables dynamic datalists with values fetched from an API endpoint as the user types.
+A web component that enables dynamic `datalist` elements with values fetched from an API endpoint as the user types.
+
+## Demo
+
+[Live Demo](https://aarongustafson.github.io/dynamic-datalist/demo/) ([Source](./demo/index.html))
 
 ## Installation
 
