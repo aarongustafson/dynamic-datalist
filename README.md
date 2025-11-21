@@ -20,7 +20,7 @@ Wrap an `input` element with `<dynamic-datalist>` and specify an endpoint:
 
 ```html
 <dynamic-datalist endpoint="/api/search">
-	<input type="text" name="search" placeholder="Type to search..." />
+  <input type="text" name="search" placeholder="Type to search..." />
 </dynamic-datalist>
 ```
 
@@ -30,7 +30,7 @@ This will make a GET request to `/api/search?query=WHAT_THE_USER_TYPED`.
 
 ```html
 <dynamic-datalist endpoint="/api/search" method="post">
-	<input type="text" name="search" placeholder="Type to search..." />
+  <input type="text" name="search" placeholder="Type to search..." />
 </dynamic-datalist>
 ```
 
@@ -40,7 +40,7 @@ This will make a POST request with JSON body: `{ "query": "WHAT_THE_USER_TYPED" 
 
 ```html
 <dynamic-datalist endpoint="/api/search" key="term">
-	<input type="text" name="search" placeholder="Type to search..." />
+  <input type="text" name="search" placeholder="Type to search..." />
 </dynamic-datalist>
 ```
 
@@ -52,12 +52,13 @@ If your input already has a datalist, the component will use and update it:
 
 ```html
 <dynamic-datalist endpoint="/api/cities">
-	<input type="text" list="cities-list" placeholder="Type a city..." />
-	<datalist id="cities-list">
-		<option>New York</option>
-		<option>Los Angeles</option>
-		<option>Chicago</option>
-	</datalist>
+  <input type="text" list="cities-list" placeholder="Type a city..." />
+  <datalist id="cities-list">
+    <option>New York</option>
+    <option>Los Angeles</option>
+    <option>Los Angeles</option>
+    <option>Chicago</option>
+  </datalist>
 </dynamic-datalist>
 ```
 
@@ -69,11 +70,11 @@ Your endpoint should return JSON in this format:
 
 ```json
 {
-	"options": [
-		"option 1",
-		"option 2",
-		"option 3"
-	]
+  "options": [
+    "option 1",
+    "option 2",
+    "option 3"
+  ]
 }
 ```
 
@@ -101,11 +102,11 @@ The component fires custom events that you can listen to:
 const element = document.querySelector('dynamic-datalist');
 
 element.addEventListener('dynamic-datalist:update', (event) => {
-	console.log('Received options:', event.detail.options);
+  console.log('Received options:', event.detail.options);
 });
 
 element.addEventListener('dynamic-datalist:error', (event) => {
-	console.error('Error fetching options:', event.detail.error);
+  console.error('Error fetching options:', event.detail.error);
 });
 ```
 
