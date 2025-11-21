@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -6,8 +6,13 @@
 		<title>dynamic-datalist Demo</title>
 		<style>
 			body {
-				font-family: system-ui, -apple-system, BlinkMacSystemFont,
-					'Segoe UI', Roboto, sans-serif;
+				font-family:
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					Roboto,
+					sans-serif;
 				max-width: 800px;
 				margin: 0 auto;
 				padding: 2rem;
@@ -30,39 +35,214 @@
 				font-size: 1.2rem;
 				color: #666;
 			}
+
+			label {
+				display: block;
+				margin-bottom: 0.5rem;
+				font-weight: 500;
+			}
+
+			input {
+				width: 100%;
+				padding: 0.5rem;
+				font-size: 1rem;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				box-sizing: border-box;
+			}
+
+			pre {
+				background: #f5f5f5;
+				padding: 1rem;
+				border-radius: 4px;
+				overflow-x: auto;
+			}
+
+			code {
+				font-family: 'Monaco', 'Courier New', monospace;
+				font-size: 0.9rem;
+			}
+
+			.log {
+				margin-top: 1rem;
+				padding: 0.5rem;
+				background: #f9f9f9;
+				border-left: 3px solid #4caf50;
+				font-size: 0.9rem;
+			}
 		</style>
 	</head>
 	<body>
 		<h1>dynamic-datalist Demo</h1>
 
+		<p>
+			This component enables dynamic datalists that fetch options from an
+			API endpoint as the user types.
+		</p>
+
 		<div class="example">
-			<h2>Basic Example</h2>
-			<dynamic-datalist>
-				<p>Content goes here</p>
+			<h2>Example 1: Basic Usage (GET Request)</h2>
+			<p>
+				This example uses a mock endpoint. In a real scenario, replace
+				with your API URL.
+			</p>
+			<pre><code>&lt;dynamic-datalist endpoint="/api/search"&gt;
+  &lt;input type="text" name="search" /&gt;
+&lt;/dynamic-datalist&gt;</code></pre>
+
+			<label for="search1">Search:</label>
+			<dynamic-datalist id="example1" endpoint="/api/search">
+				<input
+					type="text"
+					id="search1"
+					name="search"
+					placeholder="Type to search (mock endpoint)"
+				/>
 			</dynamic-datalist>
+			<div id="log1" class="log">Events will appear here...</div>
 		</div>
 
 		<div class="example">
-			<h2>Example with Attributes</h2>
-			<dynamic-datalist example-attribute="value">
-				<p>Content with attributes</p>
+			<h2>Example 2: POST Request with Custom Variable Name</h2>
+			<pre><code>&lt;dynamic-datalist endpoint="/api/lookup" method="post" key="term"&gt;
+  &lt;input type="text" name="lookup" /&gt;
+&lt;/dynamic-datalist&gt;</code></pre>
+
+			<label for="search2">Lookup:</label>
+			<dynamic-datalist
+				id="example2"
+				endpoint="/api/lookup"
+				method="post"
+				key="term"
+			>
+				<input
+					type="text"
+					id="search2"
+					name="lookup"
+					placeholder="Type to lookup (POST method)"
+				/>
 			</dynamic-datalist>
+			<div id="log2" class="log">Events will appear here...</div>
+		</div>
+
+		<div class="example">
+			<h2>Example 3: Using Existing Datalist</h2>
+			<p>
+				When the input already has a datalist, the component will use
+				and update it instead of creating a new one.
+			</p>
+			<pre><code>&lt;dynamic-datalist endpoint="/api/cities"&gt;
+  &lt;input type="text" list="cities-list" /&gt;
+  &lt;datalist id="cities-list"&gt;
+    &lt;option&gt;New York&lt;/option&gt;
+    &lt;option&gt;Los Angeles&lt;/option&gt;
+    &lt;option&gt;Chicago&lt;/option&gt;
+  &lt;/datalist&gt;
+&lt;/dynamic-datalist&gt;</code></pre>
+
+			<label for="search3">City:</label>
+			<dynamic-datalist id="example3" endpoint="/api/cities">
+				<input
+					type="text"
+					id="search3"
+					name="city"
+					list="cities-list"
+					placeholder="Type to search cities"
+				/>
+				<datalist id="cities-list">
+					<option>New York</option>
+					<option>Los Angeles</option>
+					<option>Chicago</option>
+				</datalist>
+			</dynamic-datalist>
+			<div id="log3" class="log">Events will appear here...</div>
 		</div>
 
 		<script type="module">
 			import '../define.js';
 
-			// Add event listeners or demo-specific code here
-			document
-				.querySelectorAll('dynamic-datalist')
-				.forEach((element) => {
-					element.addEventListener(
-						'dynamic-datalist:event-name',
-						(event) => {
-							console.log('Event fired:', event.detail);
-						},
-					);
+			// Mock API responses for demo purposes
+			const mockResponses = {
+				'/api/search': (query) => ({
+					options: [
+						`${query} - Result 1`,
+						`${query} - Result 2`,
+						`${query} - Result 3`,
+						`${query} - Option A`,
+						`${query} - Option B`,
+					],
+				}),
+				'/api/lookup': (query) => ({
+					options: [
+						`Lookup: ${query} (Item 1)`,
+						`Lookup: ${query} (Item 2)`,
+						`Lookup: ${query} (Item 3)`,
+					],
+				}),
+				'/api/cities': (query) => ({
+					options: [
+						`${query}ville`,
+						`${query} City`,
+						`New ${query}`,
+						`${query} Heights`,
+						`${query}burg`,
+					],
+				}),
+			};
+
+			// Intercept fetch requests for demo
+			const originalFetch = window.fetch;
+			window.fetch = function (url, options) {
+				// Extract endpoint from URL
+				let endpoint = url;
+				if (url.includes('?')) {
+					endpoint = url.split('?')[0];
+				}
+
+				// Check if we have a mock response
+				if (mockResponses[endpoint]) {
+					let query = '';
+
+					if (options && options.method === 'POST') {
+						const body = JSON.parse(options.body);
+						query = Object.values(body)[0];
+					} else {
+						const params = new URLSearchParams(url.split('?')[1]);
+						query = params.get('query') || params.get('term') || '';
+					}
+
+					// Return a mock response
+					return Promise.resolve({
+						ok: true,
+						status: 200,
+						json: () =>
+							Promise.resolve(mockResponses[endpoint](query)),
+					});
+				}
+
+				// Fall back to original fetch
+				return originalFetch.apply(this, arguments);
+			};
+
+			// Add event listeners for each example
+			['example1', 'example2', 'example3'].forEach((id, index) => {
+				const element = document.getElementById(id);
+				const log = document.getElementById(`log${index + 1}`);
+
+				element.addEventListener('dynamic-datalist:ready', (event) => {
+					log.innerHTML = `<strong>Ready:</strong> Component initialized`;
 				});
+
+				element.addEventListener('dynamic-datalist:update', (event) => {
+					const options = event.detail.options;
+					log.innerHTML = `<strong>Updated:</strong> Received ${options.length} options: ${options.join(', ')}`;
+				});
+
+				element.addEventListener('dynamic-datalist:error', (event) => {
+					log.innerHTML = `<strong>Error:</strong> ${event.detail.error.message}`;
+					log.style.borderLeftColor = '#f44336';
+				});
+			});
 		</script>
 	</body>
 </html>

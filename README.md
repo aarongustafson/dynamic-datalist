@@ -1,192 +1,157 @@
-# Web Component Starter Template
+# dynamic-datalist
 
-A comprehensive, production-ready starter template for creating Web Components. This template is based on the architecture and best practices from [form-obfuscator](https://github.com/aarongustafson/form-obfuscator).
+A web component that enables dynamic datalists with values fetched from an API endpoint as the user types.
 
-## ✨ Features
-
-- **Modern Tooling**: Vitest, ESLint, Prettier, Happy DOM
-- **Best Practices**: Shadow DOM, Custom Elements v1, proper encapsulation
-- **Multiple Import Options**: Auto-define, manual definition, or both
-- **Testing**: Comprehensive test setup with coverage reporting
-- **CI/CD**: GitHub Actions workflows included
-- **Developer Experience**: Demo page, interactive setup, extensive documentation
-- **Publishing Ready**: npm package configuration and automated publishing workflow
-
-## 🚀 Quick Start
-
-### Use This Template
-
-1. Click "Use this template" on GitHub, or:
+## Installation
 
 ```bash
-git clone https://github.com/aarongustafson/web-component-starter.git my-component
-cd my-component
+npm install @aarongustafson/dynamic-datalist
 ```
 
-2. Run the interactive setup:
+## Usage
 
-```bash
-npm install
-npm run setup
+### Basic Example (GET Request)
+
+Wrap an `input` element with `<dynamic-datalist>` and specify an endpoint:
+
+```html
+<dynamic-datalist endpoint="/api/search">
+	<input type="text" name="search" placeholder="Type to search..." />
+</dynamic-datalist>
 ```
 
-The setup wizard will:
-- Ask for your component name (e.g., `my-awesome-component`)
-- Ask for a description
-- Rename all files automatically
-- Replace all placeholders
-- **Clean up template setup files** (SETUP.md, scripts/)
-- Install dependencies
-- Initialize git repository
+This will make a GET request to `/api/search?query=WHAT_THE_USER_TYPED`.
 
-### Manual Setup
+### POST Request
 
-If you prefer manual setup, see [SETUP.md](SETUP.md) for detailed instructions.
-
-## 📁 What's Included
-
-```
-web-component-starter/
-├── dynamic-datalist.js          # Component implementation
-├── index.js                   # Main entry (class + auto-define)
-├── define.js                  # Auto-define only
-├── custom-elements.json       # Custom Elements Manifest
-├── package.json               # Package config with scripts
-├── LICENSE                    # MIT License
-├── .gitignore                 # Git ignore
-├── .npmignore                 # npm ignore
-├── .prettierrc                # Prettier config
-├── .editorconfig              # Editor config
-├── eslint.config.js           # ESLint config
-├── vitest.config.js           # Vitest config
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml            # Continuous integration
-│   │   └── publish.yml       # Auto-publish to npm
-│   └── ISSUE_TEMPLATE/       # Bug & feature templates
-├── scripts/
-│   └── setup.js              # Interactive setup wizard (removed after setup)
-├── test/
-│   ├── setup.js              # Test configuration
-│   └── dynamic-datalist.test.js # Test suite
-├── demo/
-│   └── index.html            # Live demo page
-├── SETUP.md                  # Manual setup guide
-└── CONTRIBUTING.md           # Contribution guidelines
+```html
+<dynamic-datalist endpoint="/api/search" method="post">
+	<input type="text" name="search" placeholder="Type to search..." />
+</dynamic-datalist>
 ```
 
-## 🛠️ Development
+This will make a POST request with JSON body: `{ "query": "WHAT_THE_USER_TYPED" }`.
 
-### Available Scripts
+### Custom Variable Name
 
-```bash
-npm run setup          # Interactive setup wizard
-npm test               # Run tests in watch mode
-npm run test:run       # Run tests once
-npm run test:ui        # Open Vitest UI
-npm run test:coverage  # Generate coverage report
-npm run lint           # Lint with ESLint + Prettier
-npm run format         # Auto-fix linting issues
+```html
+<dynamic-datalist endpoint="/api/search" key="term">
+	<input type="text" name="search" placeholder="Type to search..." />
+</dynamic-datalist>
 ```
 
-### Component Architecture
+This will send the query as `/api/search?term=WHAT_THE_USER_TYPED` (GET) or `{ "term": "..." }` (POST).
 
-This template provides three flexible import options:
+### Using Existing Datalist
 
-**Option 1: Auto-define (easiest)**
+If your input already has a datalist, the component will use and update it:
+
+```html
+<dynamic-datalist endpoint="/api/cities">
+	<input type="text" list="cities-list" placeholder="Type a city..." />
+	<datalist id="cities-list">
+		<option>New York</option>
+		<option>Los Angeles</option>
+		<option>Chicago</option>
+	</datalist>
+</dynamic-datalist>
+```
+
+The component will preserve and update the existing datalist instead of creating a new one.
+
+## API Response Format
+
+Your endpoint should return JSON in this format:
+
+```json
+{
+	"options": [
+		"option 1",
+		"option 2",
+		"option 3"
+	]
+}
+```
+
+## Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `endpoint` | `string` | (required) | URL to the JSON endpoint |
+| `method` | `string` | `"get"` | HTTP method: `get` or `post` |
+| `key` | `string` | `"query"` | Variable name for the query parameter |
+
+## Events
+
+The component fires custom events that you can listen to:
+
+| Event | Description | Detail |
+|-------|-------------|--------|
+| `dynamic-datalist:ready` | Fired when component is initialized | `{ input, datalist }` |
+| `dynamic-datalist:update` | Fired when datalist is updated | `{ input, datalist, options }` |
+| `dynamic-datalist:error` | Fired when an error occurs | `{ input, datalist, error }` |
+
+### Example Event Handling
+
 ```javascript
-import '@yourscope/component-name';
-// Element is automatically registered
-```
+const element = document.querySelector('dynamic-datalist');
 
-**Option 2: Manual registration**
-```javascript
-import { DynamicDatalistElement } from '@yourscope/component-name/component-name.js';
-customElements.define('my-custom-name', DynamicDatalistElement);
-```
+element.addEventListener('dynamic-datalist:update', (event) => {
+	console.log('Received options:', event.detail.options);
+});
 
-**Option 3: Both**
-```javascript
-import { DynamicDatalistElement } from '@yourscope/component-name';
-// Element is registered AND class is available for extension
-```
-
-## 🧪 Testing
-
-Includes:
-- **Vitest**: Fast, modern test runner
-- **Happy DOM**: Lightweight browser environment
-- **Testing Library**: DOM testing utilities
-- **Coverage**: V8 coverage reporting
-- **UI**: Interactive test debugging
-
-Example:
-```javascript
-import { describe, it, expect } from 'vitest';
-
-describe('MyComponent', () => {
-  it('should render', () => {
-    const el = document.createElement('my-component');
-    expect(el).toBeInstanceOf(HTMLElement);
-  });
+element.addEventListener('dynamic-datalist:error', (event) => {
+	console.error('Error fetching options:', event.detail.error);
 });
 ```
 
-## 📦 Publishing
+## Import Options
 
-### Setup npm Publishing
+### Auto-define (Recommended)
 
-1. Add `NPM_TOKEN` to GitHub repository secrets
-2. Update version in `package.json`
-3. Create a GitHub release
-4. Automated workflow publishes to npm
-
-### Manual Publishing
-
-```bash
-npm run test:run  # Ensure tests pass
-npm run lint      # Ensure code is clean
-npm publish       # Publish to npm
+```javascript
+import '@aarongustafson/dynamic-datalist';
+// Component is automatically registered as <dynamic-datalist>
 ```
 
-## 🌐 Browser Support
+### Manual Registration
 
-Works in all modern browsers supporting:
+```javascript
+import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist/dynamic-datalist.js';
+
+customElements.define('my-datalist', DynamicDatalistElement);
+```
+
+## Browser Support
+
+This component uses modern web standards:
 - Custom Elements v1
-- Shadow DOM v1
 - ES Modules
+- Fetch API
+- URLSearchParams
 
-For legacy browsers, use polyfills.
+For older browsers, you may need polyfills.
 
-## 📚 Documentation
+## Migration from jQuery Plugin
 
-- [SETUP.md](SETUP.md) - Detailed setup instructions (removed after setup)
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [LICENSE](LICENSE) - MIT License
+This component replaces [my older jQuery plugin `jquery.easy-predictive-typing.js`](https://github.com/easy-designs/jquery.easy-predictive-typing.js).
 
-## 🎯 Use Cases
+## Development
 
-Perfect for:
-- Reusable UI components
-- Design system elements
-- Form controls and widgets
-- Interactive content blocks
-- Accessibility-enhanced components
+```bash
+# Install dependencies
+npm install
 
-## 🙏 Credits
+# Run tests
+npm test
 
-Based on best practices from:
-- [form-obfuscator](https://github.com/aarongustafson/form-obfuscator) by Aaron Gustafson
-- [Open Web Components](https://open-wc.org/)
+# Run tests with coverage
+npm run test:coverage
 
-## 📄 License
+# View demo
+open demo/index.html
+```
 
-MIT - See [LICENSE](LICENSE)
+## License
 
-## 🤝 Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-**Ready to build your web component?** Run `npm run setup` to get started! 🚀
+MIT © [Aaron Gustafson](https://www.aaron-gustafson.com/)

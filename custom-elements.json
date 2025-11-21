@@ -8,11 +8,60 @@
 			"declarations": [
 				{
 					"kind": "class",
-					"description": "Enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types",
+					"description": "Enables you to dynamically update a field's datalist with values retrieved from a URL as the user types",
 					"name": "DynamicDatalistElement",
 					"members": [],
-					"events": [],
-					"attributes": [],
+					"events": [
+						{
+							"name": "dynamic-datalist:ready",
+							"type": {
+								"text": "CustomEvent"
+							},
+							"description": "Fired when the component is initialized"
+						},
+						{
+							"name": "dynamic-datalist:update",
+							"type": {
+								"text": "CustomEvent"
+							},
+							"description": "Fired when the datalist is updated with new options"
+						},
+						{
+							"name": "dynamic-datalist:error",
+							"type": {
+								"text": "CustomEvent"
+							},
+							"description": "Fired when an error occurs fetching options"
+						}
+					],
+					"attributes": [
+						{
+							"name": "endpoint",
+							"type": {
+								"text": "string"
+							},
+							"description": "URL to the JSON endpoint",
+							"fieldName": "endpoint"
+						},
+						{
+							"name": "method",
+							"type": {
+								"text": "string"
+							},
+							"description": "HTTP method (get or post, default: get)",
+							"fieldName": "method",
+							"default": "\"get\""
+						},
+						{
+							"name": "key",
+							"type": {
+								"text": "string"
+							},
+							"description": "Variable name for the query value (default: query)",
+							"fieldName": "key",
+							"default": "\"query\""
+						}
+					],
 					"superclass": {
 						"name": "HTMLElement"
 					},

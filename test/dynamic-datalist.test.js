@@ -1,12 +1,29 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DynamicDatalistElement } from '../dynamic-datalist.js';
 
 describe('DynamicDatalistElement', () => {
 	let element;
+	let input;
 
 	beforeEach(() => {
+		// Reset all mocks before each test
+		vi.restoreAllMocks();
+
 		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
+
 		document.body.appendChild(element);
+	});
+
+	afterEach(() => {
+		// Only remove if still in document
+		if (element.parentNode === document.body) {
+			document.body.removeChild(element);
+		}
 	});
 
 	it('should be defined', () => {
@@ -20,9 +37,261 @@ describe('DynamicDatalistElement', () => {
 		expect(element).toBeInstanceOf(HTMLElement);
 	});
 
-	it('should have a shadow root', () => {
-		expect(element.shadowRoot).toBeTruthy();
+	it('should not have a shadow root', () => {
+		expect(element.shadowRoot).toBeFalsy();
 	});
 
-	// Add more tests here
+	it('should find the input element', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__$input).toBe(input);
+	});
+
+	it('should create a datalist when none exists', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__$datalist).toBeTruthy();
+		expect(element.__$datalist.tagName).toBe('DATALIST');
+		expect(input.hasAttribute('list')).toBe(true);
+	});
+
+	it('should use existing datalist if present', async () => {
+		const existingDatalist = document.createElement('datalist');
+		existingDatalist.id = 'test-list';
+		element.appendChild(existingDatalist);
+
+		const newInput = document.createElement('input');
+		newInput.setAttribute('list', 'test-list');
+		element.replaceChild(newInput, input);
+		input = newInput;
+
+		element.remove();
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__$datalist).toBe(existingDatalist);
+	});
+
+	it('should have default method of "get"', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__method).toBe('get');
+	});
+
+	it('should accept custom method attribute', async () => {
+		element.setAttribute('method', 'post');
+		element.remove();
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__method).toBe('post');
+	});
+
+	it('should have default key of "query"', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__key).toBe('query');
+	});
+
+	it('should accept custom key attribute', async () => {
+		element.setAttribute('key', 'search');
+		element.remove();
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.__key).toBe('search');
+	});
+
+	it('should emit ready event on initialization', async () => {
+		const readyHandler = vi.fn();
+		element.addEventListener('dynamic-datalist:ready', readyHandler);
+
+		element.remove();
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(readyHandler).toHaveBeenCalled();
+	});
+
+	it('should warn if no input element is found', async () => {
+		const warnSpy = vi.spyOn(console, 'warn');
+
+		const emptyElement = document.createElement('dynamic-datalist');
+		emptyElement.setAttribute('endpoint', '/api/test');
+		document.body.appendChild(emptyElement);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('No input element found'),
+		);
+
+		document.body.removeChild(emptyElement);
+		warnSpy.mockRestore();
+	});
+
+	it('should warn if no endpoint is specified', async () => {
+		const warnSpy = vi.spyOn(console, 'warn');
+
+		const noEndpointElement = document.createElement('dynamic-datalist');
+		const testInput = document.createElement('input');
+		noEndpointElement.appendChild(testInput);
+		document.body.appendChild(noEndpointElement);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('No endpoint attribute specified'),
+		);
+
+		document.body.removeChild(noEndpointElement);
+		warnSpy.mockRestore();
+	});
+
+	it('should make GET request with correct parameters', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: ['test1', 'test2'] }),
+		});
+
+		input.value = 'test';
+		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		expect(fetchSpy).toHaveBeenCalledWith('/api/test?query=test');
+		fetchSpy.mockRestore();
+	});
+
+	it('should make POST request with JSON body', async () => {
+		element.setAttribute('method', 'post');
+		element.remove();
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: ['test1', 'test2'] }),
+		});
+
+		element.__$input.value = 'test';
+		element.__$input.dispatchEvent(
+			new KeyboardEvent('keyup', { which: 65 }),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		expect(fetchSpy).toHaveBeenCalledWith('/api/test', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ query: 'test' }),
+		});
+		fetchSpy.mockRestore();
+	});
+
+	it('should update datalist with fetched options', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: ['option1', 'option2', 'option3'] }),
+		});
+
+		const updateHandler = vi.fn();
+		element.addEventListener('dynamic-datalist:update', updateHandler);
+
+		input.value = 'test';
+		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+
+		expect(element.__$datalist.children.length).toBe(3);
+		expect(element.__$datalist.children[0].value).toBe('option1');
+		expect(element.__$datalist.children[1].value).toBe('option2');
+		expect(element.__$datalist.children[2].value).toBe('option3');
+		expect(updateHandler).toHaveBeenCalled();
+	});
+
+	it('should ignore arrow keys, tab, and enter', async () => {
+		// Wait for any pending operations from previous tests
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		// Create a fresh element for this test to avoid interference
+		const testElement = document.createElement('dynamic-datalist');
+		testElement.setAttribute('endpoint', '/api/ignore-test');
+
+		const testInput = document.createElement('input');
+		testInput.type = 'text';
+		testElement.appendChild(testInput);
+		document.body.appendChild(testElement);
+
+		await new Promise((resolve) => setTimeout(resolve, 20));
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: [] }),
+		});
+
+		testInput.value = 'test';
+
+		// Arrow up (keyCode 38)
+		testInput.dispatchEvent(
+			new KeyboardEvent('keyup', { keyCode: 38, which: 38 }),
+		);
+		// Arrow down (keyCode 40)
+		testInput.dispatchEvent(
+			new KeyboardEvent('keyup', { keyCode: 40, which: 40 }),
+		);
+		// Tab (keyCode 9)
+		testInput.dispatchEvent(
+			new KeyboardEvent('keyup', { keyCode: 9, which: 9 }),
+		);
+		// Enter (keyCode 13)
+		testInput.dispatchEvent(
+			new KeyboardEvent('keyup', { keyCode: 13, which: 13 }),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 20));
+
+		// Filter calls to only those to our test endpoint
+		const relevantCalls = fetchSpy.mock.calls.filter(
+			(call) => call[0] && call[0].includes('/api/ignore-test'),
+		);
+
+		expect(relevantCalls.length).toBe(0);
+
+		document.body.removeChild(testElement);
+		fetchSpy.mockRestore();
+	});
+
+	it('should emit error event on fetch failure', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
+
+		const errorHandler = vi.fn();
+		element.addEventListener('dynamic-datalist:error', errorHandler);
+
+		input.value = 'test';
+		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+
+		expect(errorHandler).toHaveBeenCalled();
+		expect(errorHandler.mock.calls[0][0].detail.error.message).toBe(
+			'Network error',
+		);
+	});
+
+	it('should clean up event listeners on disconnect', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		const removeEventListenerSpy = vi.spyOn(input, 'removeEventListener');
+
+		element.remove();
+
+		expect(removeEventListenerSpy).toHaveBeenCalledWith(
+			'keyup',
+			element.__boundHandleKeyup,
+		);
+
+		removeEventListenerSpy.mockRestore();
+	});
 });
