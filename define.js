@@ -1,3 +1,3 @@
-import { ComponentNameElement } from './COMPONENT-NAME.js';
+import { DynamicDatalistElement } from './dynamic-datalist.js';
 
-customElements.define('COMPONENT-NAME', ComponentNameElement);
+customElements.define('dynamic-datalist', DynamicDatalistElement);

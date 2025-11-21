@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>COMPONENT-NAME Demo</title>
+		<title>dynamic-datalist Demo</title>
 		<style>
 			body {
 				font-family: system-ui, -apple-system, BlinkMacSystemFont,
@@ -33,20 +33,20 @@
 		</style>
 	</head>
 	<body>
-		<h1>COMPONENT-NAME Demo</h1>
+		<h1>dynamic-datalist Demo</h1>
 
 		<div class="example">
 			<h2>Basic Example</h2>
-			<COMPONENT-NAME>
+			<dynamic-datalist>
 				<p>Content goes here</p>
-			</COMPONENT-NAME>
+			</dynamic-datalist>
 		</div>
 
 		<div class="example">
 			<h2>Example with Attributes</h2>
-			<COMPONENT-NAME example-attribute="value">
+			<dynamic-datalist example-attribute="value">
 				<p>Content with attributes</p>
-			</COMPONENT-NAME>
+			</dynamic-datalist>
 		</div>
 
 		<script type="module">
@@ -54,10 +54,10 @@
 
 			// Add event listeners or demo-specific code here
 			document
-				.querySelectorAll('COMPONENT-NAME')
+				.querySelectorAll('dynamic-datalist')
 				.forEach((element) => {
 					element.addEventListener(
-						'COMPONENT-NAME:event-name',
+						'dynamic-datalist:event-name',
 						(event) => {
 							console.log('Event fired:', event.detail);
 						},

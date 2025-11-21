@@ -1,2 +1,2 @@
-export { ComponentNameElement } from './COMPONENT-NAME.js';
+export { DynamicDatalistElement } from './dynamic-datalist.js';
 import './define.js';

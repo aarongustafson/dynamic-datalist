@@ -4,29 +4,29 @@
 	"modules": [
 		{
 			"kind": "javascript-module",
-			"path": "COMPONENT-NAME.js",
+			"path": "dynamic-datalist.js",
 			"declarations": [
 				{
 					"kind": "class",
-					"description": "COMPONENT_DESCRIPTION",
-					"name": "ComponentNameElement",
+					"description": "Enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types",
+					"name": "DynamicDatalistElement",
 					"members": [],
 					"events": [],
 					"attributes": [],
 					"superclass": {
 						"name": "HTMLElement"
 					},
-					"tagName": "COMPONENT-NAME",
+					"tagName": "dynamic-datalist",
 					"customElement": true
 				}
 			],
 			"exports": [
 				{
 					"kind": "js",
-					"name": "ComponentNameElement",
+					"name": "DynamicDatalistElement",
 					"declaration": {
-						"name": "ComponentNameElement",
-						"module": "COMPONENT-NAME.js"
+						"name": "DynamicDatalistElement",
+						"module": "dynamic-datalist.js"
 					}
 				}
 			]

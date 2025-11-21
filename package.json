@@ -1,7 +1,7 @@
 {
-	"name": "@aarongustafson/COMPONENT-NAME",
+	"name": "@aarongustafson/dynamic-datalist",
 	"version": "1.0.0",
-	"description": "COMPONENT_DESCRIPTION",
+	"description": "Enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types",
 	"keywords": [
 		"html",
 		"custom element",
@@ -9,24 +9,24 @@
 	],
 	"author": "Aaron Gustafson <aaron@easy-designs.net> (https://www.aaron-gustafson.com/)",
 	"license": "MIT",
-	"homepage": "https://github.com/aarongustafson/COMPONENT-NAME#readme",
+	"homepage": "https://github.com/aarongustafson/dynamic-datalist#readme",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/aarongustafson/COMPONENT-NAME.git"
+		"url": "git+https://github.com/aarongustafson/dynamic-datalist.git"
 	},
 	"bugs": {
-		"url": "https://github.com/aarongustafson/COMPONENT-NAME/issues"
+		"url": "https://github.com/aarongustafson/dynamic-datalist/issues"
 	},
 	"type": "module",
 	"main": "index.js",
-	"module": "COMPONENT-NAME.js",
+	"module": "dynamic-datalist.js",
 	"customElements": "custom-elements.json",
 	"exports": {
 		".": {
 			"import": "./index.js"
 		},
-		"./COMPONENT-NAME.js": {
-			"import": "./COMPONENT-NAME.js"
+		"./dynamic-datalist.js": {
+			"import": "./dynamic-datalist.js"
 		},
 		"./define.js": {
 			"import": "./define.js"
@@ -34,7 +34,7 @@
 		"./custom-elements.json": "./custom-elements.json"
 	},
 	"files": [
-		"COMPONENT-NAME.js",
+		"dynamic-datalist.js",
 		"define.js",
 		"index.js",
 		"custom-elements.json",

@@ -1,22 +1,22 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ComponentNameElement } from '../COMPONENT-NAME.js';
+import { DynamicDatalistElement } from '../dynamic-datalist.js';
 
-describe('ComponentNameElement', () => {
+describe('DynamicDatalistElement', () => {
 	let element;
 
 	beforeEach(() => {
-		element = document.createElement('COMPONENT-NAME');
+		element = document.createElement('dynamic-datalist');
 		document.body.appendChild(element);
 	});
 
 	it('should be defined', () => {
-		expect(customElements.get('COMPONENT-NAME')).toBe(
-			ComponentNameElement,
+		expect(customElements.get('dynamic-datalist')).toBe(
+			DynamicDatalistElement,
 		);
 	});
 
 	it('should create an instance', () => {
-		expect(element).toBeInstanceOf(ComponentNameElement);
+		expect(element).toBeInstanceOf(DynamicDatalistElement);
 		expect(element).toBeInstanceOf(HTMLElement);
 	});
 

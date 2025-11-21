@@ -47,7 +47,7 @@ If you prefer manual setup, see [SETUP.md](SETUP.md) for detailed instructions.
 
 ```
 web-component-starter/
-├── COMPONENT-NAME.js          # Component implementation
+├── dynamic-datalist.js          # Component implementation
 ├── index.js                   # Main entry (class + auto-define)
 ├── define.js                  # Auto-define only
 ├── custom-elements.json       # Custom Elements Manifest
@@ -68,7 +68,7 @@ web-component-starter/
 │   └── setup.js              # Interactive setup wizard (removed after setup)
 ├── test/
 │   ├── setup.js              # Test configuration
-│   └── COMPONENT-NAME.test.js # Test suite
+│   └── dynamic-datalist.test.js # Test suite
 ├── demo/
 │   └── index.html            # Live demo page
 ├── SETUP.md                  # Manual setup guide
@@ -101,13 +101,13 @@ import '@yourscope/component-name';
 
 **Option 2: Manual registration**
 ```javascript
-import { ComponentNameElement } from '@yourscope/component-name/component-name.js';
-customElements.define('my-custom-name', ComponentNameElement);
+import { DynamicDatalistElement } from '@yourscope/component-name/component-name.js';
+customElements.define('my-custom-name', DynamicDatalistElement);
 ```
 
 **Option 3: Both**
 ```javascript
-import { ComponentNameElement } from '@yourscope/component-name';
+import { DynamicDatalistElement } from '@yourscope/component-name';
 // Element is registered AND class is available for extension
 ```
 
