@@ -9,7 +9,8 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 		Oxygen, Ubuntu, Cantarell, sans-serif;
 	line-height: 1.6;
-	color: #333;
+	color: CanvasText;
+	background: Canvas;
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 1rem;
@@ -37,7 +38,7 @@ h1 {
 h2 {
 	font-size: 1.5rem;
 	margin-block: 2rem 1rem;
-	border-bottom: 2px solid #e0e0e0;
+	border-bottom: 2px solid ButtonBorder;
 	padding-bottom: 0.5rem;
 }
 
@@ -51,7 +52,7 @@ p {
 }
 
 code {
-	background: #f5f5f5;
+	background: ButtonFace;
 	padding: 0.125rem 0.25rem;
 	border-radius: 3px;
 	font-family: 'Courier New', Courier, monospace;
@@ -62,8 +63,16 @@ code {
    ========================================================================== */
 
 a {
-	color: #0066cc;
+	color: LinkText;
 	text-decoration-skip-ink: auto;
+}
+
+a:visited {
+	color: VisitedText;
+}
+
+a:active {
+	color: ActiveText;
 }
 
 a:hover {
@@ -79,14 +88,14 @@ header {
 
 header p {
 	font-size: 1.1rem;
-	color: #666;
+	color: GrayText;
 }
 
 footer {
 	margin-block-start: 3rem;
 	padding-block-start: 2rem;
-	border-top: 2px solid #e0e0e0;
-	color: #666;
+	border-top: 2px solid ButtonBorder;
+	color: GrayText;
 	font-size: 0.9rem;
 }
 
@@ -96,13 +105,13 @@ footer {
 .demo-section {
 	margin-block: 2rem;
 	padding: 1.5rem;
-	background: #fafafa;
+	background: ButtonFace;
 	border-radius: 8px;
-	border: 1px solid #e0e0e0;
+	border: 1px solid ButtonBorder;
 }
 
 .demo-section > p {
-	color: #666;
+	color: GrayText;
 	margin-block-end: 1rem;
 }
 
@@ -168,10 +177,10 @@ pre code mark {
    ========================================================================== */
 
 .demo {
-	background: white;
+	background: Canvas;
 	padding: 1rem;
 	border-radius: 6px;
-	border: 1px solid #ddd;
+	border: 1px solid ButtonBorder;
 }
 
 /* Form Elements
@@ -212,26 +221,28 @@ select,
 textarea {
 	display: block;
 	padding: 0.25rem 0.5rem;
-	border: 1px solid #ccc;
+	border: 1px solid ButtonBorder;
 	border-radius: 4px;
 	font-size: 1rem;
 	font-family: inherit;
 	width: 100%;
 	max-width: 400px;
+	background: Field;
+	color: FieldText;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-	outline: 2px solid #0066cc;
+	outline: 2px solid AccentColor;
 	outline-offset: 2px;
-	border-color: #0066cc;
+	border-color: AccentColor;
 }
 
 button[type='submit'],
 button[type='reset'] {
-	background: #0066cc;
-	color: white;
+	background: AccentColor;
+	color: AccentColorText;
 	border: none;
 	padding: 0.75rem 1.5rem;
 	border-radius: 4px;
@@ -244,15 +255,17 @@ button[type='reset'] {
 
 button[type='submit']:hover,
 button[type='reset']:hover {
-	background: #0052a3;
+	opacity: 0.8;
 }
 
 button[type='reset'] {
-	background: #666;
+	background: ButtonFace;
+	color: ButtonText;
+	border: 1px solid ButtonBorder;
 }
 
 button[type='reset']:hover {
-	background: #555;
+	opacity: 0.9;
 }
 
 small {
@@ -260,7 +273,7 @@ small {
 	font-style: italic;
 	font-weight: normal;
 	margin-block: 0.5rem 1rem;
-	color: #666;
+	color: GrayText;
 }
 
 /* Radio/Checkbox "Other" Pattern
@@ -290,8 +303,9 @@ small {
    ========================================================================== */
 
 .note {
-	background: #fff3cd;
-	border-left: 4px solid #ffc107;
+	background: Mark;
+	color: MarkText;
+	border-left: 4px solid AccentColor;
 	padding: 1rem;
 	margin-block: 1rem;
 	border-radius: 4px;
@@ -306,8 +320,9 @@ small {
    ========================================================================== */
 
 .api-reference {
-	background: #e3f2fd;
-	border-left: 4px solid #2196f3;
+	background: SelectedItem;
+	color: SelectedItemText;
+	border-left: 4px solid AccentColor;
 	padding: 1rem;
 	margin-block: 2rem;
 	border-radius: 4px;
