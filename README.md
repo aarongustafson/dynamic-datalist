@@ -1,5 +1,7 @@
 # Dynamic `datalist` Web Component
 
+[![npm version](https://img.shields.io/npm/v/@aarongustafson/dynamic-datalist.svg)](https://www.npmjs.com/package/@aarongustafson/dynamic-datalist) [![Build Status](https://github.com/aarongustafson/dynamic-datalist/actions/workflows/build.yml/badge.svg)](https://github.com/aarongustafson/dynamic-datalist/actions/workflows/build.yml)
+
 A web component that enables dynamic `datalist` elements with values fetched from an API endpoint as the user types.
 
 ## Demo
