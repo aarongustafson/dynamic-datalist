@@ -2,161 +2,565 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>dynamic-datalist Demo</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Dynamic `datalist` Web Component Demo</title>
+		<link rel="stylesheet" href="./styles.css" />
 		<style>
-			body {
-				font-family:
-					system-ui,
-					-apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					sans-serif;
-				max-width: 800px;
-				margin: 0 auto;
-				padding: 2rem;
-				line-height: 1.6;
-			}
-
-			h1 {
-				color: #333;
-			}
-
-			.example {
-				margin: 2rem 0;
-				padding: 1rem;
-				border: 1px solid #ddd;
-				border-radius: 4px;
-			}
-
-			.example h2 {
-				margin-top: 0;
-				font-size: 1.2rem;
-				color: #666;
-			}
-
-			label {
-				display: block;
-				margin-bottom: 0.5rem;
-				font-weight: 500;
-			}
-
-			input {
-				width: 100%;
-				padding: 0.5rem;
-				font-size: 1rem;
-				border: 1px solid #ccc;
-				border-radius: 4px;
-				box-sizing: border-box;
-			}
-
-			pre {
-				background: #f5f5f5;
-				padding: 1rem;
-				border-radius: 4px;
-				overflow-x: auto;
-			}
-
-			code {
-				font-family: 'Monaco', 'Courier New', monospace;
-				font-size: 0.9rem;
-			}
-
+			/* Demo-specific styles */
 			.log {
-				margin-top: 1rem;
-				padding: 0.5rem;
-				background: #f9f9f9;
-				border-left: 3px solid #4caf50;
+				margin-block: 1rem;
+				padding: 0.75rem;
+				background: #f0f8ff;
+				border-left: 4px solid #4caf50;
 				font-size: 0.9rem;
+				border-radius: 4px;
+			}
+
+			.log strong {
+				color: #2e7d32;
+			}
+
+			.log.error {
+				background: #ffebee;
+				border-left-color: #f44336;
+			}
+
+			.log.error strong {
+				color: #c62828;
 			}
 		</style>
 	</head>
 	<body>
-		<h1>dynamic-datalist Demo</h1>
-
-		<p>
-			This component enables dynamic datalists that fetch options from an
-			API endpoint as the user types.
-		</p>
-
-		<div class="example">
-			<h2>Example 1: Basic Usage (GET Request)</h2>
+		<header>
+			<h1>Dynamic <code>datalist</code></h1>
 			<p>
-				This example uses a mock endpoint. In a real scenario, replace
-				with your API URL.
+				A web component that enables dynamic datalist elements with
+				values fetched from an API endpoint as the user types. See the
+				<a
+					href="https://github.com/aarongustafson/dynamic-datalist/blob/main/README.md"
+					>README</a
+				>
+				for installation and API documentation.
 			</p>
-			<pre><code>&lt;dynamic-datalist endpoint="/api/search"&gt;
-  &lt;input type="text" name="search" /&gt;
-&lt;/dynamic-datalist&gt;</code></pre>
-
-			<label for="search1">Search:</label>
-			<dynamic-datalist id="example1" endpoint="/api/search">
-				<input
-					type="text"
-					id="search1"
-					name="search"
-					placeholder="Type to search (mock endpoint)"
-				/>
-			</dynamic-datalist>
-			<div id="log1" class="log">Events will appear here...</div>
-		</div>
-
-		<div class="example">
-			<h2>Example 2: POST Request with Custom Variable Name</h2>
-			<pre><code>&lt;dynamic-datalist endpoint="/api/lookup" method="post" key="term"&gt;
-  &lt;input type="text" name="lookup" /&gt;
-&lt;/dynamic-datalist&gt;</code></pre>
-
-			<label for="search2">Lookup:</label>
-			<dynamic-datalist
-				id="example2"
-				endpoint="/api/lookup"
-				method="post"
-				key="term"
-			>
-				<input
-					type="text"
-					id="search2"
-					name="lookup"
-					placeholder="Type to lookup (POST method)"
-				/>
-			</dynamic-datalist>
-			<div id="log2" class="log">Events will appear here...</div>
-		</div>
-
-		<div class="example">
-			<h2>Example 3: Using Existing Datalist</h2>
 			<p>
-				When the input already has a datalist, the component will use
-				and update it instead of creating a new one.
+				<strong>How it works:</strong> As you type in the input fields
+				below, the component fetches suggestions from a mock API
+				endpoint and populates the datalist with options.
 			</p>
-			<pre><code>&lt;dynamic-datalist endpoint="/api/cities"&gt;
-  &lt;input type="text" list="cities-list" /&gt;
+		</header>
+
+		<main>
+			<!-- Basic GET Request -->
+			<section>
+				<h2>Basic GET Request</h2>
+				<p>
+					Simple autocomplete that fetches options using a GET
+					request.
+				</p>
+
+				<div class="demo-section">
+					<h3>Default GET Request</h3>
+					<p>
+						Using <code>endpoint="/api/search"</code> makes a GET
+						request to
+						<code>/api/search?query=WHAT_THE_USER_TYPED</code>.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  endpoint="/api/search"&gt;</mark>
+  &lt;label for="search1"&gt;Search
+    &lt;input
+      type="text"
+      id="search1"
+      name="search"
+      placeholder="Type to search..." /&gt;
+  &lt;/label&gt;
+<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example1"
+									endpoint="/api/search"
+								>
+									<label for="search1"
+										>Search
+										<input
+											type="text"
+											id="search1"
+											name="search"
+											placeholder="Type to search..."
+										/>
+										<small
+											>Start typing to see
+											suggestions</small
+										>
+									</label>
+								</dynamic-datalist>
+								<div id="log1" class="log">
+									<strong>Ready:</strong> Type in the field
+									above to see results
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- POST Request -->
+			<section>
+				<h2>POST Request</h2>
+				<p>
+					Send the search query using a POST request with JSON body.
+				</p>
+
+				<div class="demo-section">
+					<h3>POST Method</h3>
+					<p>
+						Using <code>method="post"</code> makes a POST request
+						with JSON body: <code>{ "query": "..." }</code>.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  endpoint="/api/lookup"
+  method="post"&gt;</mark>
+  &lt;label for="search2"&gt;Lookup
+    &lt;input
+      type="text"
+      id="search2"
+      name="lookup"
+      placeholder="Type to lookup..." /&gt;
+  &lt;/label&gt;
+<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example2"
+									endpoint="/api/lookup"
+									method="post"
+								>
+									<label for="search2"
+										>Lookup
+										<input
+											type="text"
+											id="search2"
+											name="lookup"
+											placeholder="Type to lookup..."
+										/>
+										<small
+											>Uses POST request to fetch
+											options</small
+										>
+									</label>
+								</dynamic-datalist>
+								<div id="log2" class="log">
+									<strong>Ready:</strong> Type in the field
+									above to see results
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Custom Variable Name -->
+			<section>
+				<h2>Custom Variable Name</h2>
+				<p>Change the variable name used for the query parameter.</p>
+
+				<div class="demo-section">
+					<h3>Custom Key Attribute</h3>
+					<p>
+						Using <code>key="term"</code> sends the query as
+						<code>/api/search?term=...</code> (GET) or
+						<code>{ "term": "..." }</code> (POST).
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  endpoint="/api/terms"
+  method="post"
+  key="term"&gt;</mark>
+  &lt;label for="search3"&gt;Term search
+    &lt;input
+      type="text"
+      id="search3"
+      name="term"
+      placeholder="Type a term..." /&gt;
+  &lt;/label&gt;
+<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example3"
+									endpoint="/api/terms"
+									method="post"
+									key="term"
+								>
+									<label for="search3"
+										>Term search
+										<input
+											type="text"
+											id="search3"
+											name="term"
+											placeholder="Type a term..."
+										/>
+										<small
+											>Uses "term" instead of "query" as
+											the parameter name</small
+										>
+									</label>
+								</dynamic-datalist>
+								<div id="log3" class="log">
+									<strong>Ready:</strong> Type in the field
+									above to see results
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Using Existing Datalist -->
+			<section>
+				<h2>Using Existing Datalist</h2>
+				<p>Enhance existing datalist elements with dynamic fetching.</p>
+
+				<div class="demo-section">
+					<h3>Pre-populated Datalist</h3>
+					<p>
+						When the input already has a datalist, the component
+						will preserve the existing options and add fetched
+						results. This is useful for providing default options
+						before the user starts typing.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  endpoint="/api/cities"&gt;</mark>
+  &lt;label for="search4"&gt;City
+    &lt;input
+      type="text"
+      id="search4"
+      list="cities-list"
+      placeholder="Type a city..." /&gt;
+  &lt;/label&gt;
   &lt;datalist id="cities-list"&gt;
     &lt;option&gt;New York&lt;/option&gt;
     &lt;option&gt;Los Angeles&lt;/option&gt;
     &lt;option&gt;Chicago&lt;/option&gt;
   &lt;/datalist&gt;
-&lt;/dynamic-datalist&gt;</code></pre>
+<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example4"
+									endpoint="/api/cities"
+								>
+									<label for="search4"
+										>City
+										<input
+											type="text"
+											id="search4"
+											name="city"
+											list="cities-list"
+											placeholder="Type a city..."
+										/>
+										<small
+											>Pre-populated with New York, Los
+											Angeles, and Chicago</small
+										>
+									</label>
+									<datalist id="cities-list">
+										<option>New York</option>
+										<option>Los Angeles</option>
+										<option>Chicago</option>
+									</datalist>
+								</dynamic-datalist>
+								<div id="log4" class="log">
+									<strong>Ready:</strong> Type in the field
+									above to see results
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
 
-			<label for="search3">City:</label>
-			<dynamic-datalist id="example3" endpoint="/api/cities">
-				<input
-					type="text"
-					id="search3"
-					name="city"
-					list="cities-list"
-					placeholder="Type to search cities"
-				/>
-				<datalist id="cities-list">
-					<option>New York</option>
-					<option>Los Angeles</option>
-					<option>Chicago</option>
-				</datalist>
-			</dynamic-datalist>
-			<div id="log3" class="log">Events will appear here...</div>
-		</div>
+			<!-- Real-World Examples -->
+			<section>
+				<h2>Real-World Examples</h2>
+				<p>Common patterns and use cases for dynamic datalists.</p>
+
+				<div class="demo-section">
+					<h3>Product Search</h3>
+					<p>
+						A typical e-commerce product search with autocomplete
+						suggestions.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form action="/search" method="get"&gt;
+  <mark>&lt;dynamic-datalist
+    endpoint="/api/products"&gt;</mark>
+    &lt;label for="product-search"&gt;
+      Search products
+      &lt;input
+        type="search"
+        id="product-search"
+        name="q"
+        placeholder="Search for products..."
+        required /&gt;
+    &lt;/label&gt;
+  <mark>&lt;/dynamic-datalist&gt;</mark>
+  &lt;button type="submit"&gt;Search&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example5"
+									endpoint="/api/products"
+								>
+									<label for="product-search"
+										>Search products
+										<input
+											type="search"
+											id="product-search"
+											name="q"
+											placeholder="Search for products..."
+										/>
+									</label>
+								</dynamic-datalist>
+								<button type="submit">Search</button>
+								<div id="log5" class="log">
+									<strong>Ready:</strong> Type to search
+									products
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="demo-section">
+					<h3>User Mention/Tag</h3>
+					<p>
+						Autocomplete for mentioning users or adding tags, often
+						triggered by special characters.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form action="/comment" method="post"&gt;
+  <mark>&lt;dynamic-datalist
+    endpoint="/api/users"
+    key="username"&gt;</mark>
+    &lt;label for="mention"&gt;
+      Mention a user
+      &lt;input
+        type="text"
+        id="mention"
+        name="mention"
+        placeholder="Start typing @..." /&gt;
+    &lt;/label&gt;
+  <mark>&lt;/dynamic-datalist&gt;</mark>
+  &lt;button type="submit"&gt;Post&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example6"
+									endpoint="/api/users"
+									key="username"
+								>
+									<label for="mention"
+										>Mention a user
+										<input
+											type="text"
+											id="mention"
+											name="mention"
+											placeholder="Start typing @..."
+										/>
+										<small>Type @ followed by a name</small>
+									</label>
+								</dynamic-datalist>
+								<button type="submit">Post</button>
+								<div id="log6" class="log">
+									<strong>Ready:</strong> Type to search users
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="demo-section">
+					<h3>Address Autocomplete</h3>
+					<p>
+						Address lookup with autocomplete, useful for shipping or
+						location forms.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code>&lt;form action="/checkout" method="post"&gt;
+  &lt;label for="name"&gt;Name
+    &lt;input
+      type="text"
+      id="name"
+      name="name"
+      required /&gt;
+  &lt;/label&gt;
+
+  <mark>&lt;dynamic-datalist
+    endpoint="/api/addresses"&gt;</mark>
+    &lt;label for="address"&gt;Address
+      &lt;input
+        type="text"
+        id="address"
+        name="address"
+        placeholder="Start typing your address..."
+        required /&gt;
+    &lt;/label&gt;
+  <mark>&lt;/dynamic-datalist&gt;</mark>
+
+  &lt;button type="submit"&gt;Continue&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<label for="name"
+									>Name
+									<input
+										type="text"
+										id="name"
+										name="name"
+										required
+									/>
+								</label>
+
+								<dynamic-datalist
+									id="example7"
+									endpoint="/api/addresses"
+								>
+									<label for="address"
+										>Address
+										<input
+											type="text"
+											id="address"
+											name="address"
+											placeholder="Start typing your address..."
+											required
+										/>
+										<small
+											>Begin typing an address to see
+											suggestions</small
+										>
+									</label>
+								</dynamic-datalist>
+
+								<button type="submit">Continue</button>
+								<div id="log7" class="log">
+									<strong>Ready:</strong> Type to search
+									addresses
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Event Handling -->
+			<section>
+				<h2>Event Handling</h2>
+				<p>
+					The component emits custom events that you can listen to for
+					advanced functionality.
+				</p>
+
+				<div class="demo-section">
+					<h3>Listening to Events</h3>
+					<p>
+						The component fires three custom events:
+						<code>dynamic-datalist:ready</code>,
+						<code>dynamic-datalist:update</code>, and
+						<code>dynamic-datalist:error</code>. This demo logs all
+						events to show you what's happening under the hood.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  id="event-demo"
+  endpoint="/api/search"&gt;</mark>
+  &lt;input type="text" /&gt;
+<mark>&lt;/dynamic-datalist&gt;</mark>
+
+&lt;script&gt;
+const el = document
+  .getElementById('event-demo');
+
+<mark>el.addEventListener(
+  'dynamic-datalist:ready',
+  (e) =&gt; {
+    console.log('Ready:', e.detail);
+  });</mark>
+
+<mark>el.addEventListener(
+  'dynamic-datalist:update',
+  (e) =&gt; {
+    console.log('Options:',
+      e.detail.options);
+  });</mark>
+
+<mark>el.addEventListener(
+  'dynamic-datalist:error',
+  (e) =&gt; {
+    console.error('Error:',
+      e.detail.error);
+  });</mark>
+&lt;/script&gt;</code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example8"
+									endpoint="/api/search"
+								>
+									<label for="search8"
+										>Search with event logging
+										<input
+											type="text"
+											id="search8"
+											name="search"
+											placeholder="Type to trigger events..."
+										/>
+										<small
+											>Check the event log below as you
+											type</small
+										>
+									</label>
+								</dynamic-datalist>
+								<div id="log8" class="log">
+									<strong>Ready:</strong> Component
+									initialized
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- API Reference -->
+			<section class="api-reference">
+				<h2>API Reference</h2>
+				<p>
+					For complete documentation of attributes, events, response
+					format, and browser support, see the
+					<a
+						href="https://github.com/aarongustafson/dynamic-datalist/blob/main/README.md"
+						>README</a
+					>.
+				</p>
+			</section>
+		</main>
+
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+				View the source on
+				<a href="https://github.com/aarongustafson/dynamic-datalist"
+					>GitHub</a
+				>.
+			</p>
+		</footer>
 
 		<script type="module">
 			import '../define.js';
@@ -179,6 +583,13 @@
 						`Lookup: ${query} (Item 3)`,
 					],
 				}),
+				'/api/terms': (query) => ({
+					options: [
+						`Term: ${query} (Definition 1)`,
+						`Term: ${query} (Definition 2)`,
+						`Term: ${query} (Synonym)`,
+					],
+				}),
 				'/api/cities': (query) => ({
 					options: [
 						`${query}ville`,
@@ -186,6 +597,33 @@
 						`New ${query}`,
 						`${query} Heights`,
 						`${query}burg`,
+					],
+				}),
+				'/api/products': (query) => ({
+					options: [
+						`${query} - Premium Edition`,
+						`${query} - Standard Version`,
+						`${query} - Deluxe Package`,
+						`${query} Pro`,
+						`${query} Starter Kit`,
+					],
+				}),
+				'/api/users': (query) => ({
+					options: [
+						`@${query}user`,
+						`@${query}_dev`,
+						`@${query}admin`,
+						`@the_${query}`,
+						`@${query}123`,
+					],
+				}),
+				'/api/addresses': (query) => ({
+					options: [
+						`${query} Main Street, Anytown, USA`,
+						`${query} Oak Avenue, Springfield, USA`,
+						`${query} Park Boulevard, Riverside, USA`,
+						`${query} Elm Drive, Lakeside, USA`,
+						`${query} Maple Lane, Hilltown, USA`,
 					],
 				}),
 			};
@@ -205,18 +643,31 @@
 
 					if (options && options.method === 'POST') {
 						const body = JSON.parse(options.body);
-						query = Object.values(body)[0];
+						query = Object.values(body)[0] || '';
 					} else {
-						const params = new URLSearchParams(url.split('?')[1]);
-						query = params.get('query') || params.get('term') || '';
+						const urlParams = url.split('?')[1];
+						if (urlParams) {
+							const params = new URLSearchParams(urlParams);
+							query =
+								params.get('query') ||
+								params.get('term') ||
+								params.get('username') ||
+								'';
+						}
 					}
 
-					// Return a mock response
-					return Promise.resolve({
-						ok: true,
-						status: 200,
-						json: () =>
-							Promise.resolve(mockResponses[endpoint](query)),
+					// Return a mock response (with slight delay to simulate network)
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							resolve({
+								ok: true,
+								status: 200,
+								json: () =>
+									Promise.resolve(
+										mockResponses[endpoint](query),
+									),
+							});
+						}, 100);
 					});
 				}
 
@@ -225,24 +676,28 @@
 			};
 
 			// Add event listeners for each example
-			['example1', 'example2', 'example3'].forEach((id, index) => {
-				const element = document.getElementById(id);
-				const log = document.getElementById(`log${index + 1}`);
+			for (let i = 1; i <= 8; i++) {
+				const element = document.getElementById(`example${i}`);
+				const log = document.getElementById(`log${i}`);
+
+				if (!element || !log) continue;
 
 				element.addEventListener('dynamic-datalist:ready', (event) => {
 					log.innerHTML = `<strong>Ready:</strong> Component initialized`;
+					log.className = 'log';
 				});
 
 				element.addEventListener('dynamic-datalist:update', (event) => {
 					const options = event.detail.options;
-					log.innerHTML = `<strong>Updated:</strong> Received ${options.length} options: ${options.join(', ')}`;
+					log.innerHTML = `<strong>Updated:</strong> Received ${options.length} option${options.length !== 1 ? 's' : ''}: ${options.slice(0, 3).join(', ')}${options.length > 3 ? ', ...' : ''}`;
+					log.className = 'log';
 				});
 
 				element.addEventListener('dynamic-datalist:error', (event) => {
 					log.innerHTML = `<strong>Error:</strong> ${event.detail.error.message}`;
-					log.style.borderLeftColor = '#f44336';
+					log.className = 'log error';
 				});
-			});
+			}
 		</script>
 	</body>
 </html>
