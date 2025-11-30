@@ -1,7 +1,7 @@
 {
 	"name": "@aarongustafson/dynamic-datalist",
 	"version": "1.0.2",
-	"description": "Enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types",
+	"description": "Web component that enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types",
 	"keywords": [
 		"html",
 		"custom element",
