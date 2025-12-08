@@ -16,6 +16,38 @@ npm install @aarongustafson/dynamic-datalist
 
 ## Usage
 
+### Option 1: Import the class and define manually
+
+Import the class and register the element with your preferred tag name:
+
+```javascript
+import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist';
+
+customElements.define('my-datalist', DynamicDatalistElement);
+```
+
+### Option 2: Auto-define the custom element (browser environments only)
+
+Use the guarded definition helper to register the element when `customElements` is available:
+
+```javascript
+import '@aarongustafson/dynamic-datalist/define.js';
+```
+
+If you prefer to control when the element is registered, call the helper directly:
+
+```javascript
+import { defineDynamicDatalist } from '@aarongustafson/dynamic-datalist/define.js';
+
+defineDynamicDatalist();
+```
+
+You can also include the guarded script from HTML:
+
+```html
+<script src="./node_modules/@aarongustafson/dynamic-datalist/define.js" type="module"></script>
+```
+
 ### Basic Example (GET Request)
 
 Wrap an `input` element with `<dynamic-datalist>` and specify an endpoint:
@@ -117,14 +149,22 @@ element.addEventListener('dynamic-datalist:error', (event) => {
 ### Auto-define (Recommended)
 
 ```javascript
-import '@aarongustafson/dynamic-datalist';
-// Component is automatically registered as <dynamic-datalist>
+import '@aarongustafson/dynamic-datalist/define.js';
+// Registers <dynamic-datalist> when customElements is available
+```
+
+You can also call the helper manually:
+
+```javascript
+import { defineDynamicDatalist } from '@aarongustafson/dynamic-datalist/define.js';
+
+defineDynamicDatalist();
 ```
 
 ### Manual Registration
 
 ```javascript
-import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist/dynamic-datalist.js';
+import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist';
 
 customElements.define('my-datalist', DynamicDatalistElement);
 ```
