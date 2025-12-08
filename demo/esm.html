@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>dynamic-datalist via esm.sh</title>
+		<style>
+			body {
+				font-family: system-ui, sans-serif;
+				margin: 2rem;
+				line-height: 1.5;
+			}
+
+			input,
+			datalist {
+				font: inherit;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>esm.sh CDN sanity check</h1>
+		<p>
+			This page loads the component class from <code>esm.sh</code> and
+			registers it manually.
+		</p>
+
+		<dynamic-datalist endpoint="https://httpbin.org/anything">
+			<input type="text" name="demo" placeholder="Type to fetch" />
+		</dynamic-datalist>
+
+		<script type="module">
+			import { DynamicDatalistElement } from 'https://esm.sh/@aarongustafson/dynamic-datalist@1.0.3/dynamic-datalist.js?bundle&target=es2022';
+
+			if (!customElements.get('dynamic-datalist')) {
+				customElements.define(
+					'dynamic-datalist',
+					DynamicDatalistElement,
+				);
+			}
+		</script>
+	</body>
+</html>

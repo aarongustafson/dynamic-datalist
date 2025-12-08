@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>dynamic-datalist via unpkg</title>
+		<style>
+			body {
+				font-family: system-ui, sans-serif;
+				margin: 2rem;
+				line-height: 1.5;
+			}
+
+			input,
+			datalist {
+				font: inherit;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>unpkg CDN sanity check</h1>
+		<p>
+			This page loads the guarded definition helper from
+			<code>unpkg</code> and registers the element when supported.
+		</p>
+
+		<dynamic-datalist endpoint="https://httpbin.org/anything">
+			<input type="text" name="demo" placeholder="Type to fetch" />
+		</dynamic-datalist>
+
+		<script type="module">
+			import { defineDynamicDatalist } from 'https://unpkg.com/@aarongustafson/dynamic-datalist@latest/define.js?module';
+
+			defineDynamicDatalist();
+		</script>
+	</body>
+</html>
