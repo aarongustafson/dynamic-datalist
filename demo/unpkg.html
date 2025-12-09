@@ -4,18 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>dynamic-datalist via unpkg</title>
-		<style>
-			body {
-				font-family: system-ui, sans-serif;
-				margin: 2rem;
-				line-height: 1.5;
-			}
-
-			input,
-			datalist {
-				font: inherit;
-			}
-		</style>
+		<link rel="stylesheet" href="./styles.css" />
 	</head>
 	<body>
 		<h1>unpkg CDN sanity check</h1>
@@ -24,14 +13,51 @@
 			<code>unpkg</code> and registers the element when supported.
 		</p>
 
-		<dynamic-datalist endpoint="https://httpbin.org/anything">
-			<input type="text" name="demo" placeholder="Type to fetch" />
+		<dynamic-datalist endpoint="/api/demo">
+			<label for="demo-input">
+				Search
+				<input
+					type="text"
+					id="demo-input"
+					name="demo"
+					placeholder="Type to fetch"
+				/>
+			</label>
 		</dynamic-datalist>
 
 		<script type="module">
 			import { defineDynamicDatalist } from 'https://unpkg.com/@aarongustafson/dynamic-datalist@latest/define.js?module';
 
 			defineDynamicDatalist();
+
+			// Mock API for demo
+			const originalFetch = window.fetch;
+			window.fetch = function (url, options) {
+				if (url.includes('/api/demo')) {
+					const params = new URLSearchParams(url.split('?')[1] || '');
+					const query = params.get('query') || '';
+
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							resolve({
+								ok: true,
+								status: 200,
+								json: () =>
+									Promise.resolve({
+										options: [
+											`${query} - Option 1`,
+											`${query} - Option 2`,
+											`${query} - Option 3`,
+											`${query} Result A`,
+											`${query} Result B`,
+										],
+									}),
+							});
+						}, 100);
+					});
+				}
+				return originalFetch.apply(this, arguments);
+			};
 		</script>
 	</body>
 </html>
