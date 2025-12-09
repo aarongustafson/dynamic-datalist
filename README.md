@@ -4,9 +4,11 @@
 
 Web component that enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types
 
-## Demo
+## Demos
 
-[Live Demo](https://aarongustafson.github.io/dynamic-datalist/demo/) ([Source](./demo/index.html))
+* [Live Demo](https://aarongustafson.github.io/dynamic-datalist/demo/) ([Source](./demo/index.html))
+* [Unpkg Demo](https://aarongustafson.github.io/dynamic-datalist/demo/unpkg.html) ([Source](./demo/unpkg.html))
+* [ESM.sh Demo](https://aarongustafson.github.io/dynamic-datalist/demo/esm.html) ([Source](./demo/esm.html))
 
 ## Installation
 
