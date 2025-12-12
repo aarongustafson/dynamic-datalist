@@ -78,9 +78,6 @@ export class DynamicDatalistElement extends HTMLElement {
 				DynamicDatalistElement.__warn('No input element found');
 				return;
 			}
-			this.__endpoint = this.endpoint;
-			this.__method = this.method;
-			this.__key = this.key;
 			this.__init();
 		});
 	}
@@ -191,16 +188,16 @@ export class DynamicDatalistElement extends HTMLElement {
 	__validateAttributes() {
 		const allowedMethods = ['get', 'post'];
 
-		if (!this.__endpoint) {
+		if (!this.endpoint) {
 			DynamicDatalistElement.__warn('No endpoint attribute specified');
 			return false;
 		}
 
-		if (!allowedMethods.includes(this.__method.toLowerCase())) {
+		if (!allowedMethods.includes(this.method.toLowerCase())) {
 			DynamicDatalistElement.__warn(
-				`Invalid method "${this.__method}". Using "get" instead.`,
+				`Invalid method "${this.method}". Using "get" instead.`,
 			);
-			this.__method = 'get';
+			// No need to set this.method, just fallback in usage
 		}
 
 		return true;
@@ -218,14 +215,14 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	async __fetchOptions(query) {
-		const method = this.__method.toLowerCase();
-		const payload = { [this.__key]: query };
+		const method = this.method.toLowerCase();
+		const payload = { [this.key]: query };
 
 		try {
 			let response;
 
 			if (method === 'post') {
-				response = await fetch(this.__endpoint, {
+				response = await fetch(this.endpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -234,7 +231,7 @@ export class DynamicDatalistElement extends HTMLElement {
 				});
 			} else {
 				const params = new URLSearchParams(payload);
-				const url = `${this.__endpoint}?${params.toString()}`;
+				const url = `${this.endpoint}?${params.toString()}`;
 				response = await fetch(url);
 			}
 
