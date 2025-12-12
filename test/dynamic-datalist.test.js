@@ -392,3 +392,77 @@ describe('DynamicDatalistElement', () => {
 		});
 	});
 });
+
+	describe('Lazy Property Upgrade', () => {
+		it('should preserve endpoint property set before element connection', () => {
+			// Create an element but don't connect it yet
+			const uninitializedElement =
+				document.createElement('dynamic-datalist');
+
+			// Set property before connecting (simulates framework setting property before upgrade)
+			uninitializedElement.endpoint = '/api/early-set';
+
+			// Now connect it
+			document.body.appendChild(uninitializedElement);
+
+			// Property should be preserved
+			expect(uninitializedElement.endpoint).toBe('/api/early-set');
+			expect(uninitializedElement.getAttribute('endpoint')).toBe(
+				'/api/early-set',
+			);
+
+			uninitializedElement.remove();
+		});
+
+		it('should preserve method property set before element connection', () => {
+			const uninitializedElement =
+				document.createElement('dynamic-datalist');
+
+			uninitializedElement.method = 'post';
+
+			document.body.appendChild(uninitializedElement);
+
+			expect(uninitializedElement.method).toBe('post');
+			expect(uninitializedElement.getAttribute('method')).toBe('post');
+
+			uninitializedElement.remove();
+		});
+
+		it('should preserve key property set before element connection', () => {
+			const uninitializedElement =
+				document.createElement('dynamic-datalist');
+
+			uninitializedElement.key = 'search';
+
+			document.body.appendChild(uninitializedElement);
+
+			expect(uninitializedElement.key).toBe('search');
+			expect(uninitializedElement.getAttribute('key')).toBe('search');
+
+			uninitializedElement.remove();
+		});
+
+		it('should handle multiple properties set before connection', () => {
+			const uninitializedElement =
+				document.createElement('dynamic-datalist');
+
+			// Set multiple properties before connecting
+			uninitializedElement.endpoint = '/api/multi-test';
+			uninitializedElement.method = 'post';
+			uninitializedElement.key = 'term';
+
+			document.body.appendChild(uninitializedElement);
+
+			// All properties should be preserved
+			expect(uninitializedElement.endpoint).toBe('/api/multi-test');
+			expect(uninitializedElement.getAttribute('endpoint')).toBe(
+				'/api/multi-test',
+			);
+			expect(uninitializedElement.method).toBe('post');
+			expect(uninitializedElement.getAttribute('method')).toBe('post');
+			expect(uninitializedElement.key).toBe('term');
+			expect(uninitializedElement.getAttribute('key')).toBe('term');
+
+			uninitializedElement.remove();
+		});
+	});
