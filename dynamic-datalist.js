@@ -63,6 +63,11 @@
  */
 export class DynamicDatalistElement extends HTMLElement {
 	connectedCallback() {
+		// Upgrade properties that may have been set before the element was defined
+		this._upgradeProperty('endpoint');
+		this._upgradeProperty('method');
+		this._upgradeProperty('key');
+
 		setTimeout(() => {
 			this.__$input = this.querySelector('input');
 
@@ -85,6 +90,20 @@ export class DynamicDatalistElement extends HTMLElement {
 
 	static __warn(message) {
 		console.warn(`<dynamic-datalist>: ${message}`);
+	}
+
+	/**
+	 * Upgrade a property to handle cases where it was set before the element upgraded.
+	 * This is especially important for framework compatibility.
+	 * @param {string} prop - Property name to upgrade
+	 * @private
+	 */
+	_upgradeProperty(prop) {
+		if (Object.prototype.hasOwnProperty.call(this, prop)) {
+			const value = this[prop];
+			delete this[prop];
+			this[prop] = value;
+		}
 	}
 
 	/**
