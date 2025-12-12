@@ -270,8 +270,12 @@ export class DynamicDatalistElement extends HTMLElement {
 
 		const value = this.__$input.value;
 
+		// Debounce fetch calls
+		clearTimeout(this.__debounceTimer);
 		if (value) {
-			this.__fetchOptions(value);
+			this.__debounceTimer = setTimeout(() => {
+				this.__fetchOptions(value);
+			}, 250);
 		}
 	}
 
