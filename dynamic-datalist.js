@@ -68,7 +68,7 @@ export class DynamicDatalistElement extends HTMLElement {
 		this._upgradeProperty('method');
 		this._upgradeProperty('key');
 
-		setTimeout(() => {
+		Promise.resolve().then(() => {
 			this.__$input = this.querySelector('input');
 
 			if (!this.__$input) {
