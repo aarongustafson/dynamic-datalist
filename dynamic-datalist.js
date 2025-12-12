@@ -70,9 +70,9 @@ export class DynamicDatalistElement extends HTMLElement {
 				DynamicDatalistElement.__warn('No input element found');
 				return;
 			}
-			this.__endpoint = this.getAttribute('endpoint');
-			this.__method = this.getAttribute('method') || 'get';
-			this.__key = this.getAttribute('key') || 'query';
+			this.__endpoint = this.endpoint;
+			this.__method = this.method;
+			this.__key = this.key;
 			this.__init();
 		});
 	}
@@ -85,6 +85,56 @@ export class DynamicDatalistElement extends HTMLElement {
 
 	static __warn(message) {
 		console.warn(`<dynamic-datalist>: ${message}`);
+	}
+
+	/**
+	 * Endpoint URL for fetching datalist options.
+	 * Reflects between property and attribute to keep them in sync.
+	 */
+	get endpoint() {
+		return this.getAttribute('endpoint');
+	}
+
+	set endpoint(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('endpoint');
+		} else {
+			this.setAttribute('endpoint', value);
+		}
+	}
+
+	/**
+	 * HTTP method for the request (get or post).
+	 * Reflects between property and attribute to keep them in sync.
+	 * Defaults to 'get' if not specified.
+	 */
+	get method() {
+		return this.getAttribute('method') || 'get';
+	}
+
+	set method(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('method');
+		} else {
+			this.setAttribute('method', value);
+		}
+	}
+
+	/**
+	 * Variable name for the query value in the request.
+	 * Reflects between property and attribute to keep them in sync.
+	 * Defaults to 'query' if not specified.
+	 */
+	get key() {
+		return this.getAttribute('key') || 'query';
+	}
+
+	set key(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('key');
+		} else {
+			this.setAttribute('key', value);
+		}
 	}
 
 	__createOrFindDatalist() {
