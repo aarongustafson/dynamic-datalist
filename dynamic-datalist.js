@@ -68,8 +68,11 @@ export class DynamicDatalistElement extends HTMLElement {
 		this._upgradeProperty('method');
 		this._upgradeProperty('key');
 
+		// Store references to input and datalist as properties
 		Promise.resolve().then(() => {
-			this.__$input = this.querySelector('input');
+			if (!this.__$input) {
+				this.__$input = this.querySelector('input');
+			}
 
 			if (!this.__$input) {
 				DynamicDatalistElement.__warn('No input element found');
@@ -157,15 +160,21 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	__createOrFindDatalist() {
+		// Only query if we don't already have a reference
+		if (!this.__$input) {
+			this.__$input = this.querySelector('input');
+		}
+
 		// Check if input already has a datalist
 		const existingListId = this.__$input.getAttribute('list');
 
 		if (existingListId) {
 			// Try to find existing datalist in the component or document
-			this.__$datalist =
-				this.querySelector(`#${existingListId}`) ||
-				document.getElementById(existingListId);
-
+			if (!this.__$datalist) {
+				this.__$datalist =
+					this.querySelector(`#${existingListId}`) ||
+					document.getElementById(existingListId);
+			}
 			if (this.__$datalist) {
 				return;
 			}
@@ -248,6 +257,9 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	__updateDatalist(options) {
+		// Only update if we have a reference
+		if (!this.__$datalist) return;
+
 		// Clear existing options
 		this.__$datalist.innerHTML = '';
 
@@ -281,7 +293,9 @@ export class DynamicDatalistElement extends HTMLElement {
 
 	__addObservers() {
 		this.__boundHandleKeyup = this.__handleKeyup.bind(this);
-		this.__$input.addEventListener('keyup', this.__boundHandleKeyup);
+		if (this.__$input) {
+			this.__$input.addEventListener('keyup', this.__boundHandleKeyup);
+		}
 	}
 
 	__init() {
