@@ -294,4 +294,101 @@ describe('DynamicDatalistElement', () => {
 
 		removeEventListenerSpy.mockRestore();
 	});
+	describe('Property Reflection', () => {
+		describe('endpoint property', () => {
+			it('should reflect attribute to property', () => {
+				element.setAttribute('endpoint', '/api/reflect-test');
+				expect(element.endpoint).toBe('/api/reflect-test');
+			});
+
+			it('should reflect property to attribute', () => {
+				element.endpoint = '/api/property-test';
+				expect(element.getAttribute('endpoint')).toBe(
+					'/api/property-test',
+				);
+			});
+
+			it('should remove attribute when property set to null', () => {
+				element.endpoint = '/api/test';
+				expect(element.hasAttribute('endpoint')).toBe(true);
+
+				element.endpoint = null;
+				expect(element.hasAttribute('endpoint')).toBe(false);
+			});
+
+			it('should remove attribute when property set to undefined', () => {
+				element.endpoint = '/api/test';
+				expect(element.hasAttribute('endpoint')).toBe(true);
+
+				element.endpoint = undefined;
+				expect(element.hasAttribute('endpoint')).toBe(false);
+			});
+		});
+
+		describe('method property', () => {
+			it('should reflect attribute to property', () => {
+				element.setAttribute('method', 'post');
+				expect(element.method).toBe('post');
+			});
+
+			it('should reflect property to attribute', () => {
+				element.method = 'post';
+				expect(element.getAttribute('method')).toBe('post');
+			});
+
+			it('should default to "get" when attribute not set', () => {
+				element.removeAttribute('method');
+				expect(element.method).toBe('get');
+			});
+
+			it('should remove attribute when property set to null', () => {
+				element.method = 'post';
+				expect(element.hasAttribute('method')).toBe(true);
+
+				element.method = null;
+				expect(element.hasAttribute('method')).toBe(false);
+			});
+
+			it('should remove attribute when property set to undefined', () => {
+				element.method = 'post';
+				expect(element.hasAttribute('method')).toBe(true);
+
+				element.method = undefined;
+				expect(element.hasAttribute('method')).toBe(false);
+			});
+		});
+
+		describe('key property', () => {
+			it('should reflect attribute to property', () => {
+				element.setAttribute('key', 'search');
+				expect(element.key).toBe('search');
+			});
+
+			it('should reflect property to attribute', () => {
+				element.key = 'term';
+				expect(element.getAttribute('key')).toBe('term');
+			});
+
+			it('should default to "query" when attribute not set', () => {
+				element.removeAttribute('key');
+				expect(element.key).toBe('query');
+			});
+
+			it('should remove attribute when property set to null', () => {
+				element.key = 'search';
+				expect(element.hasAttribute('key')).toBe(true);
+
+				element.key = null;
+				expect(element.hasAttribute('key')).toBe(false);
+			});
+
+			it('should remove attribute when property set to undefined', () => {
+				element.key = 'search';
+				expect(element.hasAttribute('key')).toBe(true);
+
+				element.key = undefined;
+				expect(element.hasAttribute('key')).toBe(false);
+			});
+		});
+	});
 });
