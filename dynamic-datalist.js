@@ -183,9 +183,6 @@ export class DynamicDatalistElement extends HTMLElement {
 			this.__$input = this.querySelector('input');
 		}
 
-		// Check if input already has a datalist
-		const existingListId = this.__$input.getAttribute('list');
-
 		// Only add or update the list attribute on the input, never replace the input element
 		requestAnimationFrame(() => {
 			if (!this.__$input) return;
@@ -201,7 +198,9 @@ export class DynamicDatalistElement extends HTMLElement {
 			}
 			// 2 & 3. If the input has a list assigned and you can't find it, or has no list, proceed
 			// 4. If there is an unassigned datalist (no id), associate it
-			datalist = Array.from(this.querySelectorAll('datalist')).find(dl => !dl.id);
+			datalist = Array.from(this.querySelectorAll('datalist')).find(
+				(dl) => !dl.id,
+			);
 			if (datalist) {
 				const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 				datalist.id = newId;
@@ -217,13 +216,6 @@ export class DynamicDatalistElement extends HTMLElement {
 			this.__$input.setAttribute('list', newId);
 			this.__$datalist = datalist;
 		});
-
-		// Create a new datalist
-		const id = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-		this.__$datalist = document.createElement('datalist');
-		this.__$datalist.id = id;
-		this.appendChild(this.__$datalist);
-		this.__$input.setAttribute('list', id);
 	}
 
 	__validateAttributes() {
