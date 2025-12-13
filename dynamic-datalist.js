@@ -62,17 +62,43 @@
  * @slot - Default slot for the input element and optional datalist
  */
 export class DynamicDatalistElement extends HTMLElement {
+	static get observedAttributes() {
+		return ['endpoint', 'method', 'key'];
+	}
+
+	attributeChangedCallback(name, oldValue, newValue) {
+		// If the attribute changes, you may want to re-validate or re-initialize
+		if (oldValue === newValue) return;
+
+		switch (name) {
+			case 'endpoint':
+			case 'method':
+			case 'key':
+				// Optionally, re-validate or re-initialize if needed
+				// For now, just emit an update event if the component is initialized
+				if (this.__$input && this.__$datalist) {
+					this.__emitEvent('update', {});
+				}
+				break;
+		}
+	}
+
 	connectedCallback() {
-		setTimeout(() => {
-			this.__$input = this.querySelector('input');
+		// Upgrade properties that may have been set before the element was defined
+		this._upgradeProperty('endpoint');
+		this._upgradeProperty('method');
+		this._upgradeProperty('key');
+
+		// Store references to input and datalist as properties
+		Promise.resolve().then(() => {
+			if (!this.__$input) {
+				this.__$input = this.querySelector('input');
+			}
 
 			if (!this.__$input) {
 				DynamicDatalistElement.__warn('No input element found');
 				return;
 			}
-			this.__endpoint = this.getAttribute('endpoint');
-			this.__method = this.getAttribute('method') || 'get';
-			this.__key = this.getAttribute('key') || 'query';
 			this.__init();
 		});
 	}
@@ -87,42 +113,124 @@ export class DynamicDatalistElement extends HTMLElement {
 		console.warn(`<dynamic-datalist>: ${message}`);
 	}
 
+	/**
+	 * Upgrade a property to handle cases where it was set before the element upgraded.
+	 * This is especially important for framework compatibility.
+	 * @param {string} prop - Property name to upgrade
+	 * @private
+	 */
+	_upgradeProperty(prop) {
+		if (Object.prototype.hasOwnProperty.call(this, prop)) {
+			const value = this[prop];
+			delete this[prop];
+			this[prop] = value;
+		}
+	}
+
+	/**
+	 * Endpoint URL for fetching datalist options.
+	 * Reflects between property and attribute to keep them in sync.
+	 */
+	get endpoint() {
+		return this.getAttribute('endpoint');
+	}
+
+	set endpoint(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('endpoint');
+		} else {
+			this.setAttribute('endpoint', value);
+		}
+	}
+
+	/**
+	 * HTTP method for the request (get or post).
+	 * Reflects between property and attribute to keep them in sync.
+	 * Defaults to 'get' if not specified.
+	 */
+	get method() {
+		return this.getAttribute('method') || 'get';
+	}
+
+	set method(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('method');
+		} else {
+			this.setAttribute('method', value);
+		}
+	}
+
+	/**
+	 * Variable name for the query value in the request.
+	 * Reflects between property and attribute to keep them in sync.
+	 * Defaults to 'query' if not specified.
+	 */
+	get key() {
+		return this.getAttribute('key') || 'query';
+	}
+
+	set key(value) {
+		if (value === null || value === undefined) {
+			this.removeAttribute('key');
+		} else {
+			this.setAttribute('key', value);
+		}
+	}
+
 	__createOrFindDatalist() {
-		// Check if input already has a datalist
-		const existingListId = this.__$input.getAttribute('list');
-
-		if (existingListId) {
-			// Try to find existing datalist in the component or document
-			this.__$datalist =
-				this.querySelector(`#${existingListId}`) ||
-				document.getElementById(existingListId);
-
-			if (this.__$datalist) {
-				return;
-			}
+		// Only query if we don't already have a reference
+		if (!this.__$input) {
+			this.__$input = this.querySelector('input');
 		}
 
-		// Create a new datalist
-		const id = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-		this.__$datalist = document.createElement('datalist');
-		this.__$datalist.id = id;
-		this.appendChild(this.__$datalist);
-		this.__$input.setAttribute('list', id);
+		// Only add or update the list attribute on the input, never replace the input element
+		requestAnimationFrame(() => {
+			if (!this.__$input) return;
+			const listId = this.__$input.getAttribute('list');
+			let datalist = null;
+			// 1. If the input has a list assigned and you find it, use that and end
+			if (listId) {
+				datalist = this.querySelector(`datalist#${CSS.escape(listId)}`);
+				if (datalist) {
+					this.__$datalist = datalist;
+					return;
+				}
+			}
+			// 2 & 3. If the input has a list assigned and you can't find it, or has no list, proceed
+			// 4. If there is an unassigned datalist (no id), associate it
+			datalist = Array.from(this.querySelectorAll('datalist')).find(
+				(dl) => !dl.id,
+			);
+			if (datalist) {
+				const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+				datalist.id = newId;
+				this.__$input.setAttribute('list', newId);
+				this.__$datalist = datalist;
+				return;
+			}
+			// 5. If there is no unassigned datalist, create one
+			const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+			datalist = document.createElement('datalist');
+			datalist.id = newId;
+			this.appendChild(datalist);
+			this.__$input.setAttribute('list', newId);
+			this.__$datalist = datalist;
+		});
 	}
 
 	__validateAttributes() {
 		const allowedMethods = ['get', 'post'];
 
-		if (!this.__endpoint) {
+		if (!this.endpoint) {
 			DynamicDatalistElement.__warn('No endpoint attribute specified');
 			return false;
 		}
 
-		if (!allowedMethods.includes(this.__method.toLowerCase())) {
+		if (!allowedMethods.includes(this.method.toLowerCase())) {
 			DynamicDatalistElement.__warn(
-				`Invalid method "${this.__method}". Using "get" instead.`,
+				`Invalid method "${this.method}". Using "get" instead.`,
 			);
-			this.__method = 'get';
+			// No need to set this.method, just fallback in usage
 		}
 
 		return true;
@@ -140,14 +248,14 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	async __fetchOptions(query) {
-		const method = this.__method.toLowerCase();
-		const payload = { [this.__key]: query };
+		const method = this.method.toLowerCase();
+		const payload = { [this.key]: query };
 
 		try {
 			let response;
 
 			if (method === 'post') {
-				response = await fetch(this.__endpoint, {
+				response = await fetch(this.endpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -156,7 +264,7 @@ export class DynamicDatalistElement extends HTMLElement {
 				});
 			} else {
 				const params = new URLSearchParams(payload);
-				const url = `${this.__endpoint}?${params.toString()}`;
+				const url = `${this.endpoint}?${params.toString()}`;
 				response = await fetch(url);
 			}
 
@@ -179,6 +287,9 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	__updateDatalist(options) {
+		// Only update if we have a reference
+		if (!this.__$datalist) return;
+
 		// Clear existing options
 		this.__$datalist.innerHTML = '';
 
@@ -201,14 +312,20 @@ export class DynamicDatalistElement extends HTMLElement {
 
 		const value = this.__$input.value;
 
+		// Debounce fetch calls
+		clearTimeout(this.__debounceTimer);
 		if (value) {
-			this.__fetchOptions(value);
+			this.__debounceTimer = setTimeout(() => {
+				this.__fetchOptions(value);
+			}, 250);
 		}
 	}
 
 	__addObservers() {
 		this.__boundHandleKeyup = this.__handleKeyup.bind(this);
-		this.__$input.addEventListener('keyup', this.__boundHandleKeyup);
+		if (this.__$input) {
+			this.__$input.addEventListener('keyup', this.__boundHandleKeyup);
+		}
 	}
 
 	__init() {
