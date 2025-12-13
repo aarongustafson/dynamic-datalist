@@ -26,7 +26,8 @@
 			"import": "./index.js"
 		},
 		"./dynamic-datalist.js": {
-			"import": "./dynamic-datalist.js"
+			"import": "./dynamic-datalist.js",
+			"types": "./dynamic-datalist.d.ts"
 		},
 		"./define.js": {
 			"import": "./define.js"
