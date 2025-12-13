@@ -54,49 +54,57 @@ describe('DynamicDatalistElement', () => {
 	});
 
 	it('should use existing datalist if present', async () => {
+		// Set up everything from scratch for this test
+		const element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.setAttribute('list', 'test-list');
 		const existingDatalist = document.createElement('datalist');
 		existingDatalist.id = 'test-list';
+		element.appendChild(input);
 		element.appendChild(existingDatalist);
+		document.body.appendChild(element);
+		// Wait for the component to finish initialization (rAF logic)
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		// Wait for the next animation frame to ensure rAF logic has completed
+		await new Promise(requestAnimationFrame);
+		expect(element.__$datalist).toBe(existingDatalist);
+		// Clean up
+		document.body.removeChild(element);
+	});
 
-		const newInput = document.createElement('input');
-		newInput.setAttribute('list', 'test-list');
-		element.replaceChild(newInput, input);
-		input = newInput;
+	it('should have default method of "get"', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.method).toBe('get');
+	});
 
+	it('should accept custom method attribute', async () => {
+		element.setAttribute('method', 'post');
 		element.remove();
 		document.body.appendChild(element);
 
 		await new Promise((resolve) => setTimeout(resolve, 10));
-		expect(element.__$datalist).toBe(existingDatalist);
+		expect(element.method).toBe('post');
 	});
 
-	 it('should have default method of "get"', async () => {
-	  await new Promise((resolve) => setTimeout(resolve, 10));
-	  expect(element.method).toBe('get');
-	 });
+	it('should have default key of "query"', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.key).toBe('query');
+	});
 
-	 it('should accept custom method attribute', async () => {
-	  element.setAttribute('method', 'post');
-	  element.remove();
-	  document.body.appendChild(element);
+	it('should accept custom key attribute', async () => {
+		element.setAttribute('key', 'search');
+		element.remove();
+		document.body.appendChild(element);
 
-	  await new Promise((resolve) => setTimeout(resolve, 10));
-	  expect(element.method).toBe('post');
-	 });
-
-	 it('should have default key of "query"', async () => {
-	  await new Promise((resolve) => setTimeout(resolve, 10));
-	  expect(element.key).toBe('query');
-	 });
-
-	 it('should accept custom key attribute', async () => {
-	  element.setAttribute('key', 'search');
-	  element.remove();
-	  document.body.appendChild(element);
-
-	  await new Promise((resolve) => setTimeout(resolve, 10));
-	  expect(element.key).toBe('search');
-	 });
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(element.key).toBe('search');
+	});
 
 	it('should emit ready event on initialization', async () => {
 		const readyHandler = vi.fn();
@@ -143,7 +151,20 @@ describe('DynamicDatalistElement', () => {
 	});
 
 	it('should make GET request with correct parameters', async () => {
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		vi.useRealTimers();
+		document.body.removeChild(element);
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
+		document.body.appendChild(element);
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		await new Promise(requestAnimationFrame);
 
 		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
 			ok: true,
@@ -153,30 +174,43 @@ describe('DynamicDatalistElement', () => {
 		input.value = 'test';
 		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
 
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		// Wait for debounce (250ms) and async work
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
 
 		expect(fetchSpy).toHaveBeenCalledWith('/api/test?query=test');
 		fetchSpy.mockRestore();
-	});
+	}, 15000);
 
 	it('should make POST request with JSON body', async () => {
+		vi.useRealTimers();
+		document.body.removeChild(element);
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
 		element.setAttribute('method', 'post');
-		element.remove();
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
 		document.body.appendChild(element);
-
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		await new Promise(requestAnimationFrame);
 
 		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
 			ok: true,
 			json: async () => ({ options: ['test1', 'test2'] }),
 		});
 
-		element.__$input.value = 'test';
-		element.__$input.dispatchEvent(
-			new KeyboardEvent('keyup', { which: 65 }),
-		);
+		input.value = 'test';
+		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
 
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
 
 		expect(fetchSpy).toHaveBeenCalledWith('/api/test', {
 			method: 'POST',
@@ -184,10 +218,23 @@ describe('DynamicDatalistElement', () => {
 			body: JSON.stringify({ query: 'test' }),
 		});
 		fetchSpy.mockRestore();
-	});
+	}, 15000);
 
 	it('should update datalist with fetched options', async () => {
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		vi.useRealTimers();
+		document.body.removeChild(element);
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
+		document.body.appendChild(element);
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		await new Promise(requestAnimationFrame);
 
 		vi.spyOn(global, 'fetch').mockResolvedValue({
 			ok: true,
@@ -200,14 +247,16 @@ describe('DynamicDatalistElement', () => {
 		input.value = 'test';
 		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
 
-		await new Promise((resolve) => setTimeout(resolve, 50));
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
 
 		expect(element.__$datalist.children.length).toBe(3);
 		expect(element.__$datalist.children[0].value).toBe('option1');
 		expect(element.__$datalist.children[1].value).toBe('option2');
 		expect(element.__$datalist.children[2].value).toBe('option3');
 		expect(updateHandler).toHaveBeenCalled();
-	});
+	}, 15000);
 
 	it('should ignore arrow keys, tab, and enter', async () => {
 		// Wait for any pending operations from previous tests
@@ -262,7 +311,20 @@ describe('DynamicDatalistElement', () => {
 	});
 
 	it('should emit error event on fetch failure', async () => {
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		vi.useRealTimers();
+		document.body.removeChild(element);
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
+		document.body.appendChild(element);
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		await new Promise(requestAnimationFrame);
 
 		vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
 
@@ -272,13 +334,15 @@ describe('DynamicDatalistElement', () => {
 		input.value = 'test';
 		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
 
-		await new Promise((resolve) => setTimeout(resolve, 50));
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
 
 		expect(errorHandler).toHaveBeenCalled();
 		expect(errorHandler.mock.calls[0][0].detail.error.message).toBe(
 			'Network error',
 		);
-	});
+	}, 15000);
 
 	it('should clean up event listeners on disconnect', async () => {
 		await new Promise((resolve) => setTimeout(resolve, 10));
@@ -393,76 +457,72 @@ describe('DynamicDatalistElement', () => {
 	});
 });
 
-	describe('Lazy Property Upgrade', () => {
-		it('should preserve endpoint property set before element connection', () => {
-			// Create an element but don't connect it yet
-			const uninitializedElement =
-				document.createElement('dynamic-datalist');
+describe('Lazy Property Upgrade', () => {
+	it('should preserve endpoint property set before element connection', () => {
+		// Create an element but don't connect it yet
+		const uninitializedElement = document.createElement('dynamic-datalist');
 
-			// Set property before connecting (simulates framework setting property before upgrade)
-			uninitializedElement.endpoint = '/api/early-set';
+		// Set property before connecting (simulates framework setting property before upgrade)
+		uninitializedElement.endpoint = '/api/early-set';
 
-			// Now connect it
-			document.body.appendChild(uninitializedElement);
+		// Now connect it
+		document.body.appendChild(uninitializedElement);
 
-			// Property should be preserved
-			expect(uninitializedElement.endpoint).toBe('/api/early-set');
-			expect(uninitializedElement.getAttribute('endpoint')).toBe(
-				'/api/early-set',
-			);
+		// Property should be preserved
+		expect(uninitializedElement.endpoint).toBe('/api/early-set');
+		expect(uninitializedElement.getAttribute('endpoint')).toBe(
+			'/api/early-set',
+		);
 
-			uninitializedElement.remove();
-		});
-
-		it('should preserve method property set before element connection', () => {
-			const uninitializedElement =
-				document.createElement('dynamic-datalist');
-
-			uninitializedElement.method = 'post';
-
-			document.body.appendChild(uninitializedElement);
-
-			expect(uninitializedElement.method).toBe('post');
-			expect(uninitializedElement.getAttribute('method')).toBe('post');
-
-			uninitializedElement.remove();
-		});
-
-		it('should preserve key property set before element connection', () => {
-			const uninitializedElement =
-				document.createElement('dynamic-datalist');
-
-			uninitializedElement.key = 'search';
-
-			document.body.appendChild(uninitializedElement);
-
-			expect(uninitializedElement.key).toBe('search');
-			expect(uninitializedElement.getAttribute('key')).toBe('search');
-
-			uninitializedElement.remove();
-		});
-
-		it('should handle multiple properties set before connection', () => {
-			const uninitializedElement =
-				document.createElement('dynamic-datalist');
-
-			// Set multiple properties before connecting
-			uninitializedElement.endpoint = '/api/multi-test';
-			uninitializedElement.method = 'post';
-			uninitializedElement.key = 'term';
-
-			document.body.appendChild(uninitializedElement);
-
-			// All properties should be preserved
-			expect(uninitializedElement.endpoint).toBe('/api/multi-test');
-			expect(uninitializedElement.getAttribute('endpoint')).toBe(
-				'/api/multi-test',
-			);
-			expect(uninitializedElement.method).toBe('post');
-			expect(uninitializedElement.getAttribute('method')).toBe('post');
-			expect(uninitializedElement.key).toBe('term');
-			expect(uninitializedElement.getAttribute('key')).toBe('term');
-
-			uninitializedElement.remove();
-		});
+		uninitializedElement.remove();
 	});
+
+	it('should preserve method property set before element connection', () => {
+		const uninitializedElement = document.createElement('dynamic-datalist');
+
+		uninitializedElement.method = 'post';
+
+		document.body.appendChild(uninitializedElement);
+
+		expect(uninitializedElement.method).toBe('post');
+		expect(uninitializedElement.getAttribute('method')).toBe('post');
+
+		uninitializedElement.remove();
+	});
+
+	it('should preserve key property set before element connection', () => {
+		const uninitializedElement = document.createElement('dynamic-datalist');
+
+		uninitializedElement.key = 'search';
+
+		document.body.appendChild(uninitializedElement);
+
+		expect(uninitializedElement.key).toBe('search');
+		expect(uninitializedElement.getAttribute('key')).toBe('search');
+
+		uninitializedElement.remove();
+	});
+
+	it('should handle multiple properties set before connection', () => {
+		const uninitializedElement = document.createElement('dynamic-datalist');
+
+		// Set multiple properties before connecting
+		uninitializedElement.endpoint = '/api/multi-test';
+		uninitializedElement.method = 'post';
+		uninitializedElement.key = 'term';
+
+		document.body.appendChild(uninitializedElement);
+
+		// All properties should be preserved
+		expect(uninitializedElement.endpoint).toBe('/api/multi-test');
+		expect(uninitializedElement.getAttribute('endpoint')).toBe(
+			'/api/multi-test',
+		);
+		expect(uninitializedElement.method).toBe('post');
+		expect(uninitializedElement.getAttribute('method')).toBe('post');
+		expect(uninitializedElement.key).toBe('term');
+		expect(uninitializedElement.getAttribute('key')).toBe('term');
+
+		uninitializedElement.remove();
+	});
+});
