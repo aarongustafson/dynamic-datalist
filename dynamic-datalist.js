@@ -62,6 +62,27 @@
  * @slot - Default slot for the input element and optional datalist
  */
 export class DynamicDatalistElement extends HTMLElement {
+	static get observedAttributes() {
+		return ['endpoint', 'method', 'key'];
+	}
+
+	attributeChangedCallback(name, oldValue, newValue) {
+		// If the attribute changes, you may want to re-validate or re-initialize
+		if (oldValue === newValue) return;
+
+		switch (name) {
+			case 'endpoint':
+			case 'method':
+			case 'key':
+				// Optionally, re-validate or re-initialize if needed
+				// For now, just emit an update event if the component is initialized
+				if (this.__$input && this.__$datalist) {
+					this.__emitEvent('update', {});
+				}
+				break;
+		}
+	}
+
 	connectedCallback() {
 		// Upgrade properties that may have been set before the element was defined
 		this._upgradeProperty('endpoint');
@@ -165,17 +186,37 @@ export class DynamicDatalistElement extends HTMLElement {
 		// Check if input already has a datalist
 		const existingListId = this.__$input.getAttribute('list');
 
-		if (existingListId) {
-			// Try to find existing datalist in the component or document
-			if (!this.__$datalist) {
-				this.__$datalist =
-					this.querySelector(`#${existingListId}`) ||
-					document.getElementById(existingListId);
+		// Only add or update the list attribute on the input, never replace the input element
+		requestAnimationFrame(() => {
+			if (!this.__$input) return;
+			const listId = this.__$input.getAttribute('list');
+			let datalist = null;
+			// 1. If the input has a list assigned and you find it, use that and end
+			if (listId) {
+				datalist = this.querySelector(`datalist#${CSS.escape(listId)}`);
+				if (datalist) {
+					this.__$datalist = datalist;
+					return;
+				}
 			}
-			if (this.__$datalist) {
+			// 2 & 3. If the input has a list assigned and you can't find it, or has no list, proceed
+			// 4. If there is an unassigned datalist (no id), associate it
+			datalist = Array.from(this.querySelectorAll('datalist')).find(dl => !dl.id);
+			if (datalist) {
+				const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+				datalist.id = newId;
+				this.__$input.setAttribute('list', newId);
+				this.__$datalist = datalist;
 				return;
 			}
-		}
+			// 5. If there is no unassigned datalist, create one
+			const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+			datalist = document.createElement('datalist');
+			datalist.id = newId;
+			this.appendChild(datalist);
+			this.__$input.setAttribute('list', newId);
+			this.__$datalist = datalist;
+		});
 
 		// Create a new datalist
 		const id = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
