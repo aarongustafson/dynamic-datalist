@@ -36,6 +36,7 @@
 	},
 	"files": [
 		"dynamic-datalist.js",
+		"dynamic-datalist.d.ts",
 		"define.js",
 		"index.js",
 		"custom-elements.json",
