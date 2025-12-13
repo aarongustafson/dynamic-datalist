@@ -70,33 +70,33 @@ describe('DynamicDatalistElement', () => {
 		expect(element.__$datalist).toBe(existingDatalist);
 	});
 
-	it('should have default method of "get"', async () => {
-		await new Promise((resolve) => setTimeout(resolve, 10));
-		expect(element.__method).toBe('get');
-	});
+	 it('should have default method of "get"', async () => {
+	  await new Promise((resolve) => setTimeout(resolve, 10));
+	  expect(element.method).toBe('get');
+	 });
 
-	it('should accept custom method attribute', async () => {
-		element.setAttribute('method', 'post');
-		element.remove();
-		document.body.appendChild(element);
+	 it('should accept custom method attribute', async () => {
+	  element.setAttribute('method', 'post');
+	  element.remove();
+	  document.body.appendChild(element);
 
-		await new Promise((resolve) => setTimeout(resolve, 10));
-		expect(element.__method).toBe('post');
-	});
+	  await new Promise((resolve) => setTimeout(resolve, 10));
+	  expect(element.method).toBe('post');
+	 });
 
-	it('should have default key of "query"', async () => {
-		await new Promise((resolve) => setTimeout(resolve, 10));
-		expect(element.__key).toBe('query');
-	});
+	 it('should have default key of "query"', async () => {
+	  await new Promise((resolve) => setTimeout(resolve, 10));
+	  expect(element.key).toBe('query');
+	 });
 
-	it('should accept custom key attribute', async () => {
-		element.setAttribute('key', 'search');
-		element.remove();
-		document.body.appendChild(element);
+	 it('should accept custom key attribute', async () => {
+	  element.setAttribute('key', 'search');
+	  element.remove();
+	  document.body.appendChild(element);
 
-		await new Promise((resolve) => setTimeout(resolve, 10));
-		expect(element.__key).toBe('search');
-	});
+	  await new Promise((resolve) => setTimeout(resolve, 10));
+	  expect(element.key).toBe('search');
+	 });
 
 	it('should emit ready event on initialization', async () => {
 		const readyHandler = vi.fn();
