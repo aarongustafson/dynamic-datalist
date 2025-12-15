@@ -21,6 +21,7 @@
 	"main": "index.js",
 	"module": "dynamic-datalist.js",
 	"customElements": "custom-elements.json",
+	"types": "dynamic-datalist.d.ts",
 	"exports": {
 		".": {
 			"import": "./index.js"
