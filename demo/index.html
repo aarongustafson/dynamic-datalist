@@ -606,15 +606,18 @@ const el = document
 						`${query} Starter Kit`,
 					],
 				}),
-				'/api/users': (query) => ({
-					options: [
-						`@${query}user`,
-						`@${query}_dev`,
-						`@${query}admin`,
-						`@the_${query}`,
-						`@${query}123`,
-					],
-				}),
+				'/api/users': (query) => {
+					const normalizedQuery = query.replace(/^@+/, '') || 'user';
+					return {
+						options: [
+							`@${normalizedQuery}user`,
+							`@${normalizedQuery}_dev`,
+							`@${normalizedQuery}admin`,
+							`@the_${normalizedQuery}`,
+							`@${normalizedQuery}123`,
+						],
+					};
+				},
 				'/api/addresses': (query) => ({
 					options: [
 						`${query} Main Street, Anytown, USA`,
