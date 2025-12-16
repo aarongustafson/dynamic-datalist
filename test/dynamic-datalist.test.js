@@ -258,6 +258,41 @@ describe('DynamicDatalistElement', () => {
 		expect(updateHandler).toHaveBeenCalled();
 	}, 15000);
 
+	it('should not fetch when selecting an existing option', async () => {
+		vi.useRealTimers();
+		document.body.removeChild(element);
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/test');
+		input = document.createElement('input');
+		input.type = 'text';
+		element.appendChild(input);
+		document.body.appendChild(element);
+
+		await new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:ready', resolve, {
+				once: true,
+			});
+		});
+		await new Promise(requestAnimationFrame);
+
+		element.__updateDatalist(['Alpha', 'Beta', 'Gamma']);
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: [] }),
+		});
+
+		input.value = 'Alpha';
+		input.dispatchEvent(new KeyboardEvent('keyup', { which: 65 }));
+
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
+
+		expect(fetchSpy).not.toHaveBeenCalled();
+		fetchSpy.mockRestore();
+	}, 15000);
+
 	it('should ignore arrow keys, tab, and enter', async () => {
 		// Wait for any pending operations from previous tests
 		await new Promise((resolve) => setTimeout(resolve, 100));
