@@ -302,6 +302,16 @@ export class DynamicDatalistElement extends HTMLElement {
 		});
 	}
 
+	__valueMatchesOption(value) {
+		if (!this.__$datalist || !value) {
+			return false;
+		}
+
+		return Array.from(this.__$datalist.options).some(
+			(option) => option.value === value,
+		);
+	}
+
 	__handleKeyup(e) {
 		const key = e.which || e.keyCode;
 
@@ -311,6 +321,12 @@ export class DynamicDatalistElement extends HTMLElement {
 		}
 
 		const value = this.__$input.value;
+
+		// Selecting an existing option (via mouse or keyboard) should not re-fetch
+		if (this.__valueMatchesOption(value)) {
+			clearTimeout(this.__debounceTimer);
+			return;
+		}
 
 		// Debounce fetch calls
 		clearTimeout(this.__debounceTimer);
