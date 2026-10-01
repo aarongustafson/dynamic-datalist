@@ -62,6 +62,23 @@ Wrap an `input` element with `<dynamic-datalist>` and specify an endpoint:
 
 This will make a GET request to `/api/search?query=WHAT_THE_USER_TYPED`.
 
+### Bootstrap Options
+
+Add the boolean `bootstrap` attribute to populate the datalist without waiting
+for user interaction:
+
+```html
+<dynamic-datalist endpoint="/api/popular" bootstrap>
+  <input type="text" name="search" placeholder="Search popular options..." />
+</dynamic-datalist>
+```
+
+After the component and its datalist are initialized, it will make a GET
+request to `/api/popular` on the first available animation frame. The request
+does not include a query parameter. With `method="post"`, the component sends
+a POST request with no body. Bootstrap results replace any existing datalist
+options, just like results fetched after user input.
+
 ### POST Request
 
 ```html
@@ -121,6 +138,7 @@ Your endpoint should return JSON in this format:
 | `endpoint` | `string` | (required) | URL to the JSON endpoint |
 | `method` | `string` | `"get"` | HTTP method: `get` or `post` |
 | `key` | `string` | `"query"` | Variable name for the query parameter |
+| `bootstrap` | `boolean` | `false` | Fetch options without a query after initialization |
 
 ## Events
 

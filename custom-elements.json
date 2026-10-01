@@ -60,6 +60,15 @@
 							"description": "Variable name for the query value (default: query)",
 							"fieldName": "key",
 							"default": "\"query\""
+						},
+						{
+							"name": "bootstrap",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Fetch options without a query after initialization",
+							"fieldName": "bootstrap",
+							"default": "false"
 						}
 					],
 					"superclass": {

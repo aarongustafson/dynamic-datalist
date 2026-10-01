@@ -12,6 +12,8 @@
  *    post or get (default: get)
  *  - key attribute
  *    The variable name you want the value sent as (default: query)
+ *  - bootstrap attribute
+ *    Fetch options without a query after initialization
  *
  * Example(s):
  *
@@ -29,6 +31,11 @@
  * 		<input type="text" name="something"/>
  * 	</dynamic-datalist>
  * 	<!-- GET: /foo/bar?my_custom_var=WHAT THE USER TYPED -->
+ *
+ * 	<dynamic-datalist endpoint="/foo/bar" bootstrap>
+ * 		<input type="text" name="something"/>
+ * 	</dynamic-datalist>
+ * 	<!-- GET: /foo/bar on the first available frame -->
  *
  * 	<dynamic-datalist endpoint="/foo/bar">
  * 		<input type="text" name="something" list="my-list"/>
@@ -54,6 +61,7 @@
  * @attr {string} endpoint - URL to the JSON endpoint
  * @attr {string} method - HTTP method (get or post, default: get)
  * @attr {string} key - Variable name for the query value (default: query)
+ * @attr {boolean} bootstrap - Fetch options without a query after initialization
  *
  * @fires dynamic-datalist:ready - Fired when the component is initialized
  * @fires dynamic-datalist:update - Fired when the datalist is updated with new options
@@ -84,13 +92,23 @@ export class DynamicDatalistElement extends HTMLElement {
 	}
 
 	connectedCallback() {
+		const connection = Symbol();
+		this.__connection = connection;
+
 		// Upgrade properties that may have been set before the element was defined
 		this._upgradeProperty('endpoint');
 		this._upgradeProperty('method');
 		this._upgradeProperty('key');
+		this._upgradeProperty('bootstrap');
+
+		const shouldBootstrap = this.bootstrap;
 
 		// Store references to input and datalist as properties
 		Promise.resolve().then(() => {
+			if (this.__connection !== connection) {
+				return;
+			}
+
 			if (!this.__$input) {
 				this.__$input = this.querySelector('input');
 			}
@@ -99,11 +117,18 @@ export class DynamicDatalistElement extends HTMLElement {
 				DynamicDatalistElement.__warn('No input element found');
 				return;
 			}
-			this.__init();
+			this.__init(shouldBootstrap);
 		});
 	}
 
 	disconnectedCallback() {
+		this.__connection = undefined;
+
+		if (this.__animationFrameId !== undefined) {
+			cancelAnimationFrame(this.__animationFrameId);
+			this.__animationFrameId = undefined;
+		}
+
 		if (this.__$input) {
 			this.__$input.removeEventListener('keyup', this.__boundHandleKeyup);
 		}
@@ -177,14 +202,27 @@ export class DynamicDatalistElement extends HTMLElement {
 		}
 	}
 
-	__createOrFindDatalist() {
+	/**
+	 * Whether to fetch options without a query after initialization.
+	 * Reflects between property and attribute to keep them in sync.
+	 */
+	get bootstrap() {
+		return this.hasAttribute('bootstrap');
+	}
+
+	set bootstrap(value) {
+		this.toggleAttribute('bootstrap', Boolean(value));
+	}
+
+	__createOrFindDatalist(shouldBootstrap) {
 		// Only query if we don't already have a reference
 		if (!this.__$input) {
 			this.__$input = this.querySelector('input');
 		}
 
 		// Only add or update the list attribute on the input, never replace the input element
-		requestAnimationFrame(() => {
+		this.__animationFrameId = requestAnimationFrame(() => {
+			this.__animationFrameId = undefined;
 			if (!this.__$input) return;
 			const listId = this.__$input.getAttribute('list');
 			let datalist = null;
@@ -193,28 +231,34 @@ export class DynamicDatalistElement extends HTMLElement {
 				datalist = this.querySelector(`datalist#${CSS.escape(listId)}`);
 				if (datalist) {
 					this.__$datalist = datalist;
-					return;
 				}
 			}
 			// 2 & 3. If the input has a list assigned and you can't find it, or has no list, proceed
 			// 4. If there is an unassigned datalist (no id), associate it
-			datalist = Array.from(this.querySelectorAll('datalist')).find(
-				(dl) => !dl.id,
-			);
-			if (datalist) {
-				const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-				datalist.id = newId;
-				this.__$input.setAttribute('list', newId);
-				this.__$datalist = datalist;
-				return;
+			if (!this.__$datalist) {
+				datalist = Array.from(this.querySelectorAll('datalist')).find(
+					(dl) => !dl.id,
+				);
+				if (datalist) {
+					const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+					datalist.id = newId;
+					this.__$input.setAttribute('list', newId);
+					this.__$datalist = datalist;
+				}
 			}
 			// 5. If there is no unassigned datalist, create one
-			const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-			datalist = document.createElement('datalist');
-			datalist.id = newId;
-			this.appendChild(datalist);
-			this.__$input.setAttribute('list', newId);
-			this.__$datalist = datalist;
+			if (!this.__$datalist) {
+				const newId = `dynamic-datalist-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+				datalist = document.createElement('datalist');
+				datalist.id = newId;
+				this.appendChild(datalist);
+				this.__$input.setAttribute('list', newId);
+				this.__$datalist = datalist;
+			}
+
+			if (shouldBootstrap) {
+				this.__fetchOptions();
+			}
 		});
 	}
 
@@ -249,22 +293,27 @@ export class DynamicDatalistElement extends HTMLElement {
 
 	async __fetchOptions(query) {
 		const method = this.method.toLowerCase();
-		const payload = { [this.key]: query };
+		const hasQuery = query !== undefined;
+		const payload = hasQuery ? { [this.key]: query } : undefined;
 
 		try {
 			let response;
 
 			if (method === 'post') {
-				response = await fetch(this.endpoint, {
+				const requestOptions = {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify(payload),
-				});
+				};
+				if (hasQuery) {
+					requestOptions.body = JSON.stringify(payload);
+				}
+				response = await fetch(this.endpoint, requestOptions);
 			} else {
-				const params = new URLSearchParams(payload);
-				const url = `${this.endpoint}?${params.toString()}`;
+				const url = hasQuery
+					? `${this.endpoint}?${new URLSearchParams(payload).toString()}`
+					: this.endpoint;
 				response = await fetch(url);
 			}
 
@@ -344,12 +393,12 @@ export class DynamicDatalistElement extends HTMLElement {
 		}
 	}
 
-	__init() {
+	__init(shouldBootstrap = false) {
 		if (!this.__validateAttributes()) {
 			return;
 		}
 
-		this.__createOrFindDatalist();
+		this.__createOrFindDatalist(shouldBootstrap);
 		this.__addObservers();
 		this.__emitEvent('ready');
 	}

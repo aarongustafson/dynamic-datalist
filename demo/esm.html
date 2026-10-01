@@ -13,7 +13,7 @@
 			registers it manually.
 		</p>
 
-		<dynamic-datalist endpoint="/api/demo">
+		<dynamic-datalist endpoint="/api/demo" bootstrap>
 			<label for="demo-input">
 				Search
 				<input
@@ -40,7 +40,7 @@
 			window.fetch = function (url, options) {
 				if (url.includes('/api/demo')) {
 					const params = new URLSearchParams(url.split('?')[1] || '');
-					const query = params.get('query') || '';
+					const query = params.get('query') || 'Popular';
 
 					return new Promise((resolve) => {
 						setTimeout(() => {

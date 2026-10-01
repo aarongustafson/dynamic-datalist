@@ -29,6 +29,10 @@ export class DynamicDatalistElement extends HTMLElement {
 	 * The variable name for the query value in the request.
 	 */
 	key: string;
+	/**
+	 * Whether to fetch options without a query after initialization.
+	 */
+	bootstrap: boolean;
 
 	addEventListener(
 		type: 'dynamic-datalist:ready',

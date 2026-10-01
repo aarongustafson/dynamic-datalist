@@ -106,6 +106,137 @@ describe('DynamicDatalistElement', () => {
 		expect(element.key).toBe('search');
 	});
 
+	it('should not fetch on initialization without bootstrap', async () => {
+		const fetchSpy = vi.spyOn(global, 'fetch');
+
+		await new Promise(requestAnimationFrame);
+		await Promise.resolve();
+
+		expect(fetchSpy).not.toHaveBeenCalled();
+	});
+
+	it('should bootstrap a GET request after the datalist is available', async () => {
+		element.remove();
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/bootstrap');
+		element.setAttribute('bootstrap', '');
+		input = document.createElement('input');
+		const datalist = document.createElement('datalist');
+		const existingOption = document.createElement('option');
+		existingOption.value = 'Existing option';
+		datalist.appendChild(existingOption);
+		element.append(input, datalist);
+
+		const fetchSpy = vi
+			.spyOn(global, 'fetch')
+			.mockImplementation(async () => {
+				expect(element.__$datalist).toBe(datalist);
+				return {
+					ok: true,
+					json: async () => ({
+						options: ['Bootstrap option 1', 'Bootstrap option 2'],
+					}),
+				};
+			});
+		const updatePromise = new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:update', resolve, {
+				once: true,
+			});
+		});
+
+		document.body.appendChild(element);
+		const updateEvent = await updatePromise;
+
+		expect(fetchSpy).toHaveBeenCalledOnce();
+		expect(fetchSpy).toHaveBeenCalledWith('/api/bootstrap');
+		expect(Array.from(datalist.options, (option) => option.value)).toEqual([
+			'Bootstrap option 1',
+			'Bootstrap option 2',
+		]);
+		expect(updateEvent.detail.options).toEqual([
+			'Bootstrap option 1',
+			'Bootstrap option 2',
+		]);
+	});
+
+	it('should bootstrap a POST request without a body', async () => {
+		element.remove();
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/bootstrap');
+		element.setAttribute('method', 'post');
+		element.setAttribute('bootstrap', '');
+		input = document.createElement('input');
+		element.appendChild(input);
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: [] }),
+		});
+		const updatePromise = new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:update', resolve, {
+				once: true,
+			});
+		});
+
+		document.body.appendChild(element);
+		await updatePromise;
+
+		expect(fetchSpy).toHaveBeenCalledOnce();
+		expect(fetchSpy).toHaveBeenCalledWith('/api/bootstrap', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+		});
+	});
+
+	it('should only bootstrap when present at connection time', async () => {
+		element.remove();
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/bootstrap');
+		input = document.createElement('input');
+		element.appendChild(input);
+
+		const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => ({ options: [] }),
+		});
+
+		document.body.appendChild(element);
+		await new Promise(requestAnimationFrame);
+		element.bootstrap = true;
+		await new Promise(requestAnimationFrame);
+
+		expect(fetchSpy).not.toHaveBeenCalled();
+
+		element.remove();
+		const updatePromise = new Promise((resolve) => {
+			element.addEventListener('dynamic-datalist:update', resolve, {
+				once: true,
+			});
+		});
+		document.body.appendChild(element);
+		await updatePromise;
+
+		expect(fetchSpy).toHaveBeenCalledOnce();
+	});
+
+	it('should cancel bootstrap when disconnected before initialization', async () => {
+		element.remove();
+		element = document.createElement('dynamic-datalist');
+		element.setAttribute('endpoint', '/api/bootstrap');
+		element.setAttribute('bootstrap', '');
+		input = document.createElement('input');
+		element.appendChild(input);
+
+		const fetchSpy = vi.spyOn(global, 'fetch');
+
+		document.body.appendChild(element);
+		element.remove();
+		await Promise.resolve();
+		await new Promise(requestAnimationFrame);
+
+		expect(fetchSpy).not.toHaveBeenCalled();
+	});
+
 	it('should emit ready event on initialization', async () => {
 		const readyHandler = vi.fn();
 		element.addEventListener('dynamic-datalist:ready', readyHandler);
@@ -489,6 +620,28 @@ describe('DynamicDatalistElement', () => {
 				expect(element.hasAttribute('key')).toBe(false);
 			});
 		});
+
+		describe('bootstrap property', () => {
+			it('should default to false when attribute is not set', () => {
+				expect(element.bootstrap).toBe(false);
+			});
+
+			it('should reflect attribute presence to property', () => {
+				element.setAttribute('bootstrap', '');
+				expect(element.bootstrap).toBe(true);
+			});
+
+			it('should reflect true to attribute presence', () => {
+				element.bootstrap = true;
+				expect(element.hasAttribute('bootstrap')).toBe(true);
+			});
+
+			it('should remove the attribute when set to false', () => {
+				element.bootstrap = true;
+				element.bootstrap = false;
+				expect(element.hasAttribute('bootstrap')).toBe(false);
+			});
+		});
 	});
 });
 
@@ -534,6 +687,19 @@ describe('Lazy Property Upgrade', () => {
 
 		expect(uninitializedElement.key).toBe('search');
 		expect(uninitializedElement.getAttribute('key')).toBe('search');
+
+		uninitializedElement.remove();
+	});
+
+	it('should preserve bootstrap property set before element connection', () => {
+		const uninitializedElement = document.createElement('dynamic-datalist');
+
+		uninitializedElement.bootstrap = true;
+
+		document.body.appendChild(uninitializedElement);
+
+		expect(uninitializedElement.bootstrap).toBe(true);
+		expect(uninitializedElement.hasAttribute('bootstrap')).toBe(true);
 
 		uninitializedElement.remove();
 	});

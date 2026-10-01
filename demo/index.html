@@ -101,6 +101,63 @@
 				</div>
 			</section>
 
+			<!-- Bootstrap Options -->
+			<section>
+				<h2>Bootstrap Options</h2>
+				<p>
+					Populate the datalist on the first available frame without
+					waiting for user input.
+				</p>
+
+				<div class="demo-section">
+					<h3>Initial Suggestions</h3>
+					<p>
+						Adding <code>bootstrap</code> requests
+						<code>/api/bootstrap</code> without a query.
+					</p>
+					<div class="code-demo-pair">
+						<pre><code><mark>&lt;dynamic-datalist
+  endpoint="/api/bootstrap"
+  bootstrap&gt;</mark>
+  &lt;label for="bootstrap-search"&gt;Search
+    &lt;input
+      type="text"
+      id="bootstrap-search"
+      name="bootstrap-search"
+      placeholder="Choose or type..." /&gt;
+  &lt;/label&gt;
+<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						<div class="demo">
+							<form action="#">
+								<dynamic-datalist
+									id="example9"
+									endpoint="/api/bootstrap"
+									bootstrap
+								>
+									<label for="bootstrap-search"
+										>Search
+										<input
+											type="text"
+											id="bootstrap-search"
+											name="bootstrap-search"
+											placeholder="Choose or type..."
+										/>
+										<small
+											>Suggestions load
+											automatically</small
+										>
+									</label>
+								</dynamic-datalist>
+								<div id="log9" class="log">
+									<strong>Loading:</strong> Waiting for
+									initial suggestions
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			<!-- POST Request -->
 			<section>
 				<h2>POST Request</h2>
@@ -568,6 +625,13 @@ const el = document
 						`${query} - Option B`,
 					],
 				}),
+				'/api/bootstrap': () => ({
+					options: [
+						'Popular option',
+						'Featured option',
+						'Recently used option',
+					],
+				}),
 				'/api/lookup': (query) => ({
 					options: [
 						`Lookup: ${query} (Item 1)`,
@@ -637,7 +701,7 @@ const el = document
 					let query = '';
 
 					if (options && options.method === 'POST') {
-						const body = JSON.parse(options.body);
+						const body = options.body ? JSON.parse(options.body) : {};
 						query = Object.values(body)[0] || '';
 					} else {
 						const urlParams = url.split('?')[1];
@@ -671,7 +735,7 @@ const el = document
 			};
 
 			// Add event listeners for each example
-			for (let i = 1; i <= 8; i++) {
+			for (let i = 1; i <= 9; i++) {
 				const element = document.getElementById(`example${i}`);
 				const log = document.getElementById(`log${i}`);
 
