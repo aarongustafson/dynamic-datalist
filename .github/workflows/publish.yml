@@ -2,6 +2,15 @@ name: Publish to npm
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_mode:
+        description: "Choose dry-run for testing or publish to release"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - publish
   push:
     tags:
       - "v*"
@@ -12,19 +21,17 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "24.x"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
@@ -32,5 +39,14 @@ jobs:
       - name: Run tests
         run: npm run test:run
 
+      - name: Dry-run npm publish
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_mode != 'publish'
+        run: npm publish --dry-run --access public
+        env:
+          NODE_AUTH_TOKEN: ""
+
       - name: Publish to npm
-        run: npm publish
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_mode == 'publish')
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ""
