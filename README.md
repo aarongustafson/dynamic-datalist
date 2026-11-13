@@ -1,6 +1,10 @@
 # Dynamic `datalist` Web Component
 
-[![npm version](https://img.shields.io/npm/v/@aarongustafson/dynamic-datalist.svg)](https://www.npmjs.com/package/@aarongustafson/dynamic-datalist) [![Build Status](https://img.shields.io/github/actions/workflow/status/aarongustafson/dynamic-datalist/ci.yml?branch=main)](https://github.com/aarongustafson/dynamic-datalist/actions)
+[![npm version](https://img.shields.io/npm/v/@aarongustafson/dynamic-datalist.svg)](https://www.npmjs.com/package/@aarongustafson/dynamic-datalist)
+[![CI status](https://img.shields.io/github/actions/workflow/status/aarongustafson/dynamic-datalist/ci.yml?branch=main&label=CI)](https://github.com/aarongustafson/dynamic-datalist/actions/workflows/ci.yml)
+[![Minified + gzipped size](https://img.shields.io/bundlejs/size/@aarongustafson/dynamic-datalist?format=minzip&label=min%2Bgzip)](https://bundlejs.com/?q=@aarongustafson/dynamic-datalist)
+[![License](https://img.shields.io/npm/l/@aarongustafson/dynamic-datalist)](https://github.com/aarongustafson/dynamic-datalist/blob/main/LICENSE)
+[![Type definitions](https://img.shields.io/npm/types/@aarongustafson/dynamic-datalist)](https://github.com/aarongustafson/dynamic-datalist/blob/main/dynamic-datalist.d.ts)
 
 Web component that enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types
 
