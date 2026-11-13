@@ -124,6 +124,41 @@ const tokens = [
 ];
 
 for (const name of pages) {
+	for (const mode of ['light', 'dark', 'forced']) {
+		test(`${name}: ${mode} component-code marks retain contrast and narrow reflow`, async ({
+			page,
+			browserName,
+		}) => {
+			test.skip(
+				mode === 'forced' && browserName === 'webkit',
+				'WebKit does not emulate forced colors.',
+			);
+			await page.emulateMedia({
+				colorScheme: mode === 'dark' ? 'dark' : 'light',
+				forcedColors: mode === 'forced' ? 'active' : 'none',
+			});
+			await open(page, name);
+			for (const code of await page.locator('pre code').all()) {
+				expect(await code.locator('mark').count()).toBeGreaterThan(0);
+				await expect(code.locator('mark mark')).toHaveCount(0);
+				for (const mark of await code.locator('mark').all()) {
+					expect(await contrast(mark)).toBeGreaterThanOrEqual(4.5);
+				}
+			}
+			await page.setViewportSize({ width: 320, height: 800 });
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth),
+			).toBeLessThanOrEqual(320);
+			for (const pair of await page.locator('.code-demo-pair').all()) {
+				const code = await pair.locator('pre').boundingBox();
+				const live = await pair.locator('.demo').boundingBox();
+				expect(code.y + code.height).toBeLessThanOrEqual(live.y);
+			}
+		});
+	}
+}
+
+for (const name of pages) {
 	for (const colorScheme of ['light', 'dark']) {
 		test(`${name}: ${colorScheme} fields have flat contrasting boundaries and native lists`, async ({
 			page,
