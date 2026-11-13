@@ -13,10 +13,16 @@ const types = {
 };
 
 createServer(async (request, response) => {
+	let pathname;
 	try {
-		const pathname = decodeURIComponent(
+		pathname = decodeURIComponent(
 			new URL(request.url, 'http://localhost').pathname,
 		);
+	} catch {
+		response.writeHead(400).end();
+		return;
+	}
+	try {
 		const path = await realpath(resolve(root, `.${pathname}`));
 		if (!path.startsWith(`${resolve(root)}${sep}`)) {
 			response.writeHead(403).end();

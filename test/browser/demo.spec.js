@@ -6,32 +6,57 @@ const definition = await readFile('define.js', 'utf8');
 const css = await readFile('demo/styles.css', 'utf8');
 const pages = ['index.html', 'esm.html', 'unpkg.html'];
 
-async function open(page, name = 'index.html') {
+async function open(
+	page,
+	name = 'index.html',
+	{ blockModule = false, timeout = 5000 } = {},
+) {
 	await page.route('https://esm.sh/**', (route) =>
-		route.fulfill({ contentType: 'text/javascript', body: source }),
+		blockModule
+			? route.abort()
+			: route.fulfill({ contentType: 'text/javascript', body: source }),
 	);
 	await page.route('https://unpkg.com/**', (route) =>
-		route.fulfill({
-			contentType: 'text/javascript',
-			body: definition.replace(
-				"'./dynamic-datalist.js'",
-				"'http://127.0.0.1:4186/dynamic-datalist.js'",
-			),
-		}),
+		blockModule
+			? route.abort()
+			: route.fulfill({
+					contentType: 'text/javascript',
+					body: definition.replace(
+						"'./dynamic-datalist.js'",
+						"'http://127.0.0.1:4186/dynamic-datalist.js'",
+					),
+				}),
 	);
 	await page.goto(`/demo/${name}`);
 	await expect
-		.poll(() =>
-			page
-				.locator('dynamic-datalist input')
-				.first()
-				.evaluate((el) => Boolean(el.list)),
+		.poll(
+			() =>
+				page
+					.locator('dynamic-datalist input')
+					.first()
+					.evaluate((el) => Boolean(el.list)),
+			{ timeout },
 		)
 		.toBe(true);
+	if (name !== 'index.html') {
+		await expect(page.locator('#demo-options option')).toHaveCount(5, {
+			timeout,
+		});
+		await expect(page.locator('#demo-options option')).toHaveText(
+			[
+				'Popular - Option 1',
+				'Popular - Option 2',
+				'Popular - Option 3',
+				'Popular Result A',
+				'Popular Result B',
+			],
+			{ timeout },
+		);
+	}
 }
 
-async function contrast(locator) {
-	return locator.evaluate((element) => {
+async function contrast(locator, foregroundProperty = 'color') {
+	return locator.evaluate((element, foregroundProperty) => {
 		const canvas = document.createElement('canvas');
 		canvas.width = canvas.height = 1;
 		const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -50,7 +75,7 @@ async function contrast(locator) {
 			background = paint(style.backgroundColor);
 		}
 		if (background[3] !== 255) throw new Error('Expected opaque surface');
-		const foreground = paint(getComputedStyle(element).color);
+		const foreground = paint(getComputedStyle(element)[foregroundProperty]);
 		const luminance = (rgb) =>
 			rgb.slice(0, 3).reduce((sum, channel, index) => {
 				const v = channel / 255;
@@ -64,7 +89,7 @@ async function contrast(locator) {
 			(a, b) => b - a,
 		);
 		return (a + 0.05) / (b + 0.05);
-	});
+	}, foregroundProperty);
 }
 
 // The study's 62 observations reduce to 19 distinct palettes. Alpha is composited.
@@ -100,6 +125,44 @@ const tokens = [
 
 for (const name of pages) {
 	for (const colorScheme of ['light', 'dark']) {
+		test(`${name}: ${colorScheme} fields have flat contrasting boundaries and native lists`, async ({
+			page,
+		}) => {
+			await page.emulateMedia({ colorScheme });
+			await open(page, name);
+			const input = page.locator('dynamic-datalist input').first();
+			expect(
+				await input.evaluate((el) => {
+					const style = getComputedStyle(el);
+					return ['Top', 'Right', 'Bottom', 'Left'].map((side) => ({
+						style: style[`border${side}Style`],
+						width: style[`border${side}Width`],
+						color: style[`border${side}Color`] === style.color,
+					}));
+				}),
+			).toEqual(
+				Array(4).fill({ style: 'solid', width: '1px', color: true }),
+			);
+			expect(
+				await contrast(input, 'borderTopColor'),
+			).toBeGreaterThanOrEqual(3);
+			expect(await contrast(input)).toBeGreaterThanOrEqual(4.5);
+			await input.focus();
+			await page.keyboard.type('Test');
+			await expect
+				.poll(() => input.evaluate((el) => el.list.options.length))
+				.toBe(5);
+			await page.keyboard.press('ArrowDown');
+			await page.keyboard.press('Escape');
+			await expect(input).toBeFocused();
+			expect(
+				await input.evaluate((el) => getComputedStyle(el).outlineStyle),
+			).not.toBe('none');
+			expect(
+				await input.evaluate((el) => getComputedStyle(el).appearance),
+			).not.toBe('none');
+		});
+
 		test(`${name}: ${colorScheme} readable prose, keyboard focus, and reflow`, async ({
 			page,
 		}) => {
@@ -188,6 +251,20 @@ for (const name of pages) {
 	});
 }
 
+for (const name of ['esm.html', 'unpkg.html']) {
+	test(`${name}: blocked module fails normal readiness despite authored fallback`, async ({
+		page,
+	}) => {
+		await expect(
+			open(page, name, { blockModule: true, timeout: 500 }),
+		).rejects.toThrow();
+		await expect(page.locator('#demo-options option')).toHaveCount(1);
+		await expect(page.locator('#demo-options option')).toHaveText(
+			'Popular option',
+		);
+	});
+}
+
 test('recorded study palettes preserve prose and control text contrast', async ({
 	page,
 }) => {
@@ -218,6 +295,9 @@ test('recorded study palettes preserve prose and control text contrast', async (
 				`${palette[0]} ${selector}`,
 			).toBeGreaterThanOrEqual(4.5);
 		}
+		expect(
+			await contrast(page.locator('input').first(), 'borderTopColor'),
+		).toBeGreaterThanOrEqual(3);
 		await style.evaluate((el) => el.remove());
 	}
 });
@@ -368,8 +448,13 @@ test('forced colors and increased contrast preserve automatic adjustment and nat
 			.locator('body')
 			.evaluate((el) => getComputedStyle(el).forcedColorAdjust),
 	).toBe('auto');
-	for (const selector of ['small', 'footer', '.api-reference'])
+	for (const selector of ['small', 'footer', '.api-reference', 'input'])
 		expect(
 			await contrast(page.locator(selector).first()),
 		).toBeGreaterThanOrEqual(4.5);
+	const input = page.locator('input').first();
+	expect(await contrast(input, 'borderTopColor')).toBeGreaterThanOrEqual(3);
+	expect(
+		await input.evaluate((el) => getComputedStyle(el).backgroundImage),
+	).toBe('none');
 });

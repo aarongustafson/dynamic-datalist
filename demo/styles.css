@@ -237,6 +237,8 @@ select,
 textarea {
 	display: block;
 	padding: 0.25rem 0.5rem;
+	border: 1px solid currentColor;
+	border-radius: 4px;
 	font-size: 1rem;
 	font-family: inherit;
 	width: 100%;

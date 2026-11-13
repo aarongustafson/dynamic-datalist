@@ -197,6 +197,8 @@ use `aria-describedby` to connect separate instructions.
 
 The demos pair reading surfaces with `Canvas`/`CanvasText`, fields with
 `Field`/`FieldText`, and code and buttons with `ButtonFace`/`ButtonText`.
+Demo fields use a flat, solid foreground-colored border; native focus and
+suggestion-menu rendering remain unchanged.
 Supporting text inherits its surface’s foreground. The Canvas-backed footer
 uses an 80% foreground mix where supported, with full-strength text in forced
 colors and increased contrast. Native focus and automatic forced-color
@@ -212,7 +214,8 @@ them alongside your page. The component adds no visible labels.
 
 Run `npm run test:browser` for single-worker Chromium, Firefox, and WebKit checks
 of the three demo pages, light/dark layouts, recorded study palettes, keyboard
-focus, failed imports, and no-JavaScript fallbacks. CDN imports are intercepted
+focus, failed imports, and no-JavaScript fallbacks. CDN checks wait for bootstrap
+to replace the authored suggestion with fetched options. CDN imports are intercepted
 with local source in these tests; they don’t verify CDN availability. These
 checks don’t establish screen-reader support or native popup contrast in every
 operating-system theme.
