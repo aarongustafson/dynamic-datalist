@@ -7,8 +7,7 @@ export interface DynamicDatalistReadyDetail {
 	datalist: HTMLDataListElement;
 }
 
-export interface DynamicDatalistUpdateDetail
-	extends DynamicDatalistReadyDetail {
+export interface DynamicDatalistUpdateDetail extends DynamicDatalistReadyDetail {
 	options: string[];
 }
 

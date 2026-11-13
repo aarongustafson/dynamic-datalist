@@ -7,23 +7,72 @@
 		<link rel="stylesheet" href="./styles.css" />
 	</head>
 	<body>
-		<h1>unpkg CDN sanity check</h1>
-		<p>
-			This page loads the guarded definition helper from
-			<code>unpkg</code> and registers the element when supported.
-		</p>
-
-		<dynamic-datalist endpoint="/api/demo" bootstrap>
-			<label for="demo-input">
-				Search
-				<input
-					type="text"
-					id="demo-input"
-					name="demo"
-					placeholder="Type to fetch"
-				/>
-			</label>
-		</dynamic-datalist>
+		<header>
+			<h1>Dynamic <code>datalist</code> via unpkg</h1>
+			<p>
+				This page loads the guarded definition helper from
+				<code>unpkg</code> and registers the element when supported. See
+				the <a href="../">README</a> for the API.
+			</p>
+		</header>
+		<main>
+			<section class="demo-section">
+				<h2>Initial suggestions</h2>
+				<p>
+					The <code>bootstrap</code> attribute loads suggestions
+					without waiting for typing. If the module or request fails,
+					you can still enter a value.
+				</p>
+				<div class="code-demo-pair">
+					<pre><code>&lt;dynamic-datalist endpoint="/api/demo" bootstrap&gt;
+  &lt;label for="demo-input"&gt;Search&lt;/label&gt;
+  &lt;input id="demo-input" name="demo" list="demo-options" /&gt;
+  &lt;datalist id="demo-options"&gt;
+    &lt;option&gt;Popular option&lt;/option&gt;
+  &lt;/datalist&gt;
+&lt;/dynamic-datalist&gt;</code></pre>
+					<div class="demo">
+						<dynamic-datalist endpoint="/api/demo" bootstrap>
+							<label for="demo-input">
+								Search
+								<input
+									type="text"
+									id="demo-input"
+									name="demo"
+									list="demo-options"
+									aria-describedby="demo-help"
+									placeholder="Type to fetch"
+								/>
+							</label>
+							<small id="demo-help"
+								>Choose a suggestion or type your own
+								value.</small
+							>
+							<datalist id="demo-options">
+								<option>Popular option</option>
+							</datalist>
+						</dynamic-datalist>
+						<noscript
+							><p>
+								Suggestions won’t update without JavaScript. You
+								can still type a value or use the initial
+								suggestion.
+							</p></noscript
+						>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>
+				Made with ❤️ by
+				<a href="https://github.com/aarongustafson">Aaron Gustafson</a>.
+				View the source on
+				<a href="https://github.com/aarongustafson/dynamic-datalist"
+					>GitHub</a
+				>.
+			</p>
+		</footer>
 
 		<script type="module">
 			import { defineDynamicDatalist } from 'https://unpkg.com/@aarongustafson/dynamic-datalist@latest/define.js?module';
