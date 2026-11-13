@@ -297,7 +297,20 @@ test('empty results and untrusted option text leave the native input usable', as
 });
 
 for (const colorScheme of ['light', 'dark']) {
-	test(`${colorScheme}: native control and code pairs`, async ({
+	test(`${colorScheme}: native field, code block, and marked passage pairs`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ colorScheme });
+		await open(page);
+		for (const selector of ['input', 'pre', 'pre mark']) {
+			expect(
+				await contrast(page.locator(selector).first()),
+				selector,
+			).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	test(`${colorScheme}: native ButtonText/ButtonFace pair only`, async ({
 		page,
 		browserName,
 	}) => {
@@ -309,7 +322,7 @@ for (const colorScheme of ['light', 'dark']) {
 		);
 		await page.emulateMedia({ colorScheme });
 		await open(page);
-		for (const selector of ['input', 'pre', 'code', 'button', 'pre mark']) {
+		for (const selector of ['code', 'button']) {
 			expect(
 				await contrast(page.locator(selector).first()),
 				selector,
