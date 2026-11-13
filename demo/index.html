@@ -19,7 +19,8 @@
 
 			.log.error {
 				background: #ffebee;
-				border-left-color: #f44336;
+				color: #4a1010;
+				border-left-color: #a62929;
 			}
 
 			.log.error strong {
@@ -45,6 +46,13 @@
 		</header>
 
 		<main>
+			<noscript>
+				<p>
+					Suggestions won’t update without JavaScript. You can still
+					type a value, and the City field keeps its initial
+					suggestions.
+				</p>
+			</noscript>
 			<!-- Basic GET Request -->
 			<section>
 				<h2>Basic GET Request</h2>
@@ -280,9 +288,9 @@
 					<h3>Pre-populated Datalist</h3>
 					<p>
 						When the input already has a datalist, the component
-						will preserve the existing options and add fetched
-						results. This is useful for providing default options
-						before the user starts typing.
+						will reuse that list and replace its options after a
+						successful response. Initial options remain available
+						before enhancement or when a request fails.
 					</p>
 					<div class="code-demo-pair">
 						<pre><code><mark>&lt;dynamic-datalist
@@ -313,13 +321,14 @@
 											id="search4"
 											name="city"
 											list="cities-list"
+											aria-describedby="city-help"
 											placeholder="Type a city..."
 										/>
-										<small
-											>Pre-populated with New York, Los
-											Angeles, and Chicago</small
-										>
 									</label>
+									<small id="city-help"
+										>Pre-populated with New York, Los
+										Angeles, and Chicago</small
+									>
 									<datalist id="cities-list">
 										<option>New York</option>
 										<option>Los Angeles</option>
@@ -590,6 +599,49 @@ const el = document
 			</section>
 
 			<!-- API Reference -->
+			<section class="demo-section">
+				<h2>When suggestions can’t load</h2>
+				<p>
+					This endpoint deliberately returns an error. Type to try it.
+					Your text and the initial suggestion remain available; you
+					don’t have to choose a suggestion to continue.
+				</p>
+				<div class="code-demo-pair">
+					<pre><code>&lt;dynamic-datalist endpoint="/api/unavailable"&gt;
+  &lt;label for="offline-search"&gt;Destination&lt;/label&gt;
+  &lt;input id="offline-search" list="offline-options" /&gt;
+  &lt;datalist id="offline-options"&gt;
+    &lt;option&gt;Home&lt;/option&gt;
+  &lt;/datalist&gt;
+&lt;/dynamic-datalist&gt;</code></pre>
+					<div class="demo">
+						<dynamic-datalist
+							id="example10"
+							endpoint="/api/unavailable"
+						>
+							<label for="offline-search">Destination</label>
+							<input
+								id="offline-search"
+								name="destination"
+								list="offline-options"
+								aria-describedby="offline-help"
+							/>
+							<small id="offline-help"
+								>You can always type your own
+								destination.</small
+							>
+							<datalist id="offline-options">
+								<option>Home</option>
+							</datalist>
+						</dynamic-datalist>
+						<div id="log10" class="log" role="status">
+							Ready: Type to try an unavailable service.
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- API Reference -->
 			<section class="api-reference">
 				<h2>API Reference</h2>
 				<p>
@@ -701,7 +753,9 @@ const el = document
 					let query = '';
 
 					if (options && options.method === 'POST') {
-						const body = options.body ? JSON.parse(options.body) : {};
+						const body = options.body
+							? JSON.parse(options.body)
+							: {};
 						query = Object.values(body)[0] || '';
 					} else {
 						const urlParams = url.split('?')[1];
@@ -735,25 +789,26 @@ const el = document
 			};
 
 			// Add event listeners for each example
-			for (let i = 1; i <= 9; i++) {
+			for (let i = 1; i <= 10; i++) {
 				const element = document.getElementById(`example${i}`);
 				const log = document.getElementById(`log${i}`);
 
 				if (!element || !log) continue;
 
-				element.addEventListener('dynamic-datalist:ready', (event) => {
-					log.innerHTML = `<strong>Ready:</strong> Component initialized`;
+				element.addEventListener('dynamic-datalist:ready', () => {
+					log.textContent = 'Ready: Component initialized';
 					log.className = 'log';
 				});
 
 				element.addEventListener('dynamic-datalist:update', (event) => {
 					const options = event.detail.options;
-					log.innerHTML = `<strong>Updated:</strong> Received ${options.length} option${options.length !== 1 ? 's' : ''}: ${options.slice(0, 3).join(', ')}${options.length > 3 ? ', ...' : ''}`;
+					if (!Array.isArray(options)) return;
+					log.textContent = `Updated: Received ${options.length} option${options.length !== 1 ? 's' : ''}: ${options.slice(0, 3).join(', ')}${options.length > 3 ? ', ...' : ''}`;
 					log.className = 'log';
 				});
 
 				element.addEventListener('dynamic-datalist:error', (event) => {
-					log.innerHTML = `<strong>Error:</strong> ${event.detail.error.message}`;
+					log.textContent = `Error: ${event.detail.error.message}. You can still type a value; existing suggestions remain available.`;
 					log.className = 'log error';
 				});
 			}
