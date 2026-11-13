@@ -1,5 +1,13 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import {
+	cpSync,
+	mkdirSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
+import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 const baselines = {
@@ -19,13 +27,65 @@ const baselines = {
 	unpkg: ['1a65261c854f84c3fd6c6adf3cffd51fca0a0fcf69675a7bde1b22e1a78626b0'],
 };
 
-const snippets = (name) => {
+const snippets = (name, html = readFileSync(`demo/${name}.html`, 'utf8')) => {
 	const template = document.createElement('template');
-	template.innerHTML = readFileSync(`demo/${name}.html`, 'utf8');
+	template.innerHTML = html;
 	return [...template.content.querySelectorAll('pre code')];
 };
 
 describe('displayed component-code highlighting', () => {
+	it('allows the publishing helper to update a future CDN version without freezing displayed text or marks', () => {
+		const fixture = resolve(`.highlight-release-fixture-${process.pid}`);
+		const originalHtml = readFileSync('demo/esm.html', 'utf8');
+		const originalPackage = readFileSync('package.json', 'utf8');
+		try {
+			mkdirSync(resolve(fixture, 'scripts'), { recursive: true });
+			mkdirSync(resolve(fixture, 'demo'));
+			cpSync(
+				'scripts/update-demo-versions.js',
+				resolve(fixture, 'scripts/update-demo-versions.mjs'),
+			);
+			writeFileSync(resolve(fixture, 'demo/esm.html'), originalHtml);
+			writeFileSync(
+				resolve(fixture, 'package.json'),
+				JSON.stringify({
+					...JSON.parse(originalPackage),
+					version: '9.8.7',
+				}),
+			);
+			const result = spawnSync(
+				process.execPath,
+				['scripts/update-demo-versions.mjs'],
+				{
+					cwd: fixture,
+					encoding: 'utf8',
+				},
+			);
+			expect(result.status, result.stderr).toBe(0);
+			const updatedHtml = readFileSync(
+				resolve(fixture, 'demo/esm.html'),
+				'utf8',
+			);
+			expect(updatedHtml).not.toBe(originalHtml);
+			expect(updatedHtml).toContain(
+				'dynamic-datalist@9.8.7/dynamic-datalist.js',
+			);
+			const updatedCode = snippets('esm', updatedHtml);
+			expect(
+				updatedCode.map((code) =>
+					createHash('sha256').update(code.textContent).digest('hex'),
+				),
+			).toEqual(baselines.esm);
+			expect(updatedCode.map((code) => code.outerHTML)).toEqual(
+				snippets('esm').map((code) => code.outerHTML),
+			);
+			expect(readFileSync('demo/esm.html', 'utf8')).toBe(originalHtml);
+			expect(readFileSync('package.json', 'utf8')).toBe(originalPackage);
+		} finally {
+			rmSync(fixture, { recursive: true, force: true });
+		}
+	});
+
 	for (const [name, hashes] of Object.entries(baselines)) {
 		it(`${name} preserves every displayed code character`, () => {
 			expect(
