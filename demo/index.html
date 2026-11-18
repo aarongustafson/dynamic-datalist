@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Dynamic `datalist` Web Component Demo</title>
 		<link rel="stylesheet" href="./styles.css" />
+		<link rel="stylesheet" href="./demo-shell.css" />
 		<style>
 			/* Demo-specific styles */
 			.log {
@@ -28,10 +29,12 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body data-syntax-theme="github">
+		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
-			<h1>Dynamic <code>datalist</code></h1>
-			<p>
+			<p class="eyebrow">Web component / Examples</p>
+			<h1>&lt;dynamic-datalist&gt;</h1>
+			<p class="lede">
 				A web component that enables dynamic
 				<code>datalist</code> elements with values fetched from an API
 				endpoint as the user types. See the
@@ -43,9 +46,27 @@
 				below, the component fetches suggestions from a mock API
 				endpoint and populates the datalist with options.
 			</p>
+			<nav aria-label="Component resources">
+				<a
+					href="https://github.com/aarongustafson/dynamic-datalist/blob/main/README.md"
+					>Read the README</a
+				>
+				<a href="https://github.com/aarongustafson/dynamic-datalist"
+					>View on GitHub</a
+				>
+				<a href="./esm.html">esm.sh example</a>
+				<a href="./unpkg.html">unpkg example</a>
+			</nav>
 		</header>
 
-		<main>
+		<main id="main" tabindex="-1">
+			<p
+				id="microlighter-status"
+				class="enhancement-status"
+				role="status"
+				hidden
+			></p>
+
 			<noscript>
 				<p>
 					Suggestions won’t update without JavaScript. You can still
@@ -69,7 +90,16 @@
 						<code>/api/search?query=WHAT_THE_USER_TYPED</code>.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Default GET Request code 1"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   endpoint="/api/search"&gt;</mark>
   &lt;label for="search1"&gt;Search
     &lt;input
@@ -79,6 +109,7 @@
       placeholder="Type to search..." /&gt;
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -124,7 +155,16 @@
 						<code>/api/bootstrap</code> without a query.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Initial Suggestions code 2"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   endpoint="/api/bootstrap"
   bootstrap&gt;</mark>
   &lt;label for="bootstrap-search"&gt;Search
@@ -135,6 +175,7 @@
       placeholder="Choose or type..." /&gt;
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -180,7 +221,16 @@
 						with JSON body: <code>{ "query": "..." }</code>.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="POST Method code 3"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   endpoint="/api/lookup"
   method="post"&gt;</mark>
   &lt;label for="search2"&gt;Lookup
@@ -191,6 +241,7 @@
       placeholder="Type to lookup..." /&gt;
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -235,7 +286,16 @@
 						<code>{ "term": "..." }</code> (POST).
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Custom Key Attribute code 4"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   endpoint="/api/terms"
   method="post"
   key="term"&gt;</mark>
@@ -247,6 +307,7 @@
       placeholder="Type a term..." /&gt;
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -293,7 +354,16 @@
 						before enhancement or when a request fails.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Pre-populated Datalist code 5"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   endpoint="/api/cities"&gt;</mark>
   &lt;label for="search4"&gt;City
     &lt;input
@@ -308,6 +378,7 @@
     &lt;option&gt;Chicago&lt;/option&gt;
   &lt;/datalist&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -357,7 +428,16 @@
 						suggestions.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form action="/search" method="get"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Product Search code 6"
+								tabindex="0"
+							><code>&lt;form action="/search" method="get"&gt;
   <mark>&lt;dynamic-datalist
     endpoint="/api/products"&gt;</mark>
     &lt;label for="product-search"&gt;
@@ -372,6 +452,7 @@
   <mark>&lt;/dynamic-datalist&gt;</mark>
   &lt;button type="submit"&gt;Search&lt;/button&gt;
 &lt;/form&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -405,7 +486,16 @@
 						triggered by special characters.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form action="/comment" method="post"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="User Mention/Tag code 7"
+								tabindex="0"
+							><code>&lt;form action="/comment" method="post"&gt;
   <mark>&lt;dynamic-datalist
     endpoint="/api/users"
     key="username"&gt;</mark>
@@ -420,6 +510,7 @@
   <mark>&lt;/dynamic-datalist&gt;</mark>
   &lt;button type="submit"&gt;Post&lt;/button&gt;
 &lt;/form&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -454,7 +545,16 @@
 						location forms.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code>&lt;form action="/checkout" method="post"&gt;
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Address Autocomplete code 8"
+								tabindex="0"
+							><code>&lt;form action="/checkout" method="post"&gt;
   &lt;label for="name"&gt;Name
     &lt;input
       type="text"
@@ -477,6 +577,7 @@
 
   &lt;button type="submit"&gt;Continue&lt;/button&gt;
 &lt;/form&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<label for="name"
@@ -538,7 +639,16 @@
 						events to show you what's happening under the hood.
 					</p>
 					<div class="code-demo-pair">
-						<pre><code><mark>&lt;dynamic-datalist
+						<micro-lighter
+							class="code-panel"
+							language="html"
+							controls="copy"
+							data-label="HTML"
+						>
+							<pre
+								aria-label="Listening to Events code 9"
+								tabindex="0"
+							><code><mark>&lt;dynamic-datalist
   id="event-demo"
   endpoint="/api/search"&gt;</mark>
   &lt;input type="text" /&gt;
@@ -568,6 +678,7 @@ const el = document
       e.detail.error);
   });</mark>
 &lt;/script&gt;</code></pre>
+						</micro-lighter>
 						<div class="demo">
 							<form action="#">
 								<dynamic-datalist
@@ -607,13 +718,23 @@ const el = document
 					don’t have to choose a suggestion to continue.
 				</p>
 				<div class="code-demo-pair">
-					<pre><code><mark>&lt;dynamic-datalist endpoint="/api/unavailable"&gt;</mark>
+					<micro-lighter
+						class="code-panel"
+						language="html"
+						controls="copy"
+						data-label="HTML"
+					>
+						<pre
+							aria-label="When suggestions can’t load code 10"
+							tabindex="0"
+						><code><mark>&lt;dynamic-datalist endpoint="/api/unavailable"&gt;</mark>
   &lt;label for="offline-search"&gt;Destination&lt;/label&gt;
   &lt;input id="offline-search" list="offline-options" /&gt;
   &lt;datalist id="offline-options"&gt;
     &lt;option&gt;Home&lt;/option&gt;
   &lt;/datalist&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+					</micro-lighter>
 					<div class="demo">
 						<dynamic-datalist
 							id="example10"
@@ -813,5 +934,6 @@ const el = document
 				});
 			}
 		</script>
+		<script type="module" src="./code-examples.js"></script>
 	</body>
 </html>
