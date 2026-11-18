@@ -1,9 +1,22 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+	await page.route(
+		'https://cdn.jsdelivr.net/npm/microlighter@2.2.0/dist/**',
+		(route) => route.abort(),
+	);
+});
+
 const source = await readFile('dynamic-datalist.js', 'utf8');
 const definition = await readFile('define.js', 'utf8');
-const css = await readFile('demo/styles.css', 'utf8');
+const css = (
+	await Promise.all(
+		['styles.css', 'demo-shell.css'].map((file) =>
+			readFile(`demo/${file}`, 'utf8'),
+		),
+	)
+).join('\n');
 const pages = ['index.html', 'esm.html', 'unpkg.html'];
 
 async function open(
@@ -165,6 +178,7 @@ for (const name of pages) {
 
 		test(`${name}: ${colorScheme} readable prose, keyboard focus, and reflow`, async ({
 			page,
+			browserName,
 		}) => {
 			await page.emulateMedia({ colorScheme });
 			await open(page, name);
@@ -183,7 +197,9 @@ for (const name of pages) {
 						selector,
 					).toBeGreaterThanOrEqual(4.5);
 			}
-			await page.keyboard.press('Tab');
+			await page.keyboard.press(
+				browserName === 'webkit' ? 'Alt+Tab' : 'Tab',
+			);
 			await expect(page.locator(':focus-visible')).toHaveCount(1);
 			expect(
 				await page
@@ -269,7 +285,9 @@ test('recorded study palettes preserve prose and control text contrast', async (
 	page,
 }) => {
 	await open(page);
-	await page.locator('link[rel="stylesheet"]').evaluate((el) => el.remove());
+	await page
+		.locator('link[rel="stylesheet"]')
+		.evaluateAll((links) => links.forEach((link) => link.remove()));
 	for (const palette of palettes) {
 		const colors = Object.fromEntries(
 			tokens.map((token, index) => [token.toLowerCase(), palette[index]]),
@@ -442,7 +460,7 @@ test('forced colors and increased contrast preserve automatic adjustment and nat
 	await page.emulateMedia({ forcedColors: 'active', contrast: 'more' });
 	await open(page);
 	await page.keyboard.press('Tab');
-	await expect(page.locator('header a').first()).toBeFocused();
+	await expect(page.locator('.skip-link')).toBeFocused();
 	expect(
 		await page
 			.locator('body')
