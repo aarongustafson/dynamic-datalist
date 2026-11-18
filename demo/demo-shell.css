@@ -318,6 +318,12 @@ h1 code {
 }
 
 @media (forced-colors: active), (prefers-contrast: more) {
+	pre,
+	.event-log {
+		background-color: Field;
+		background-image: none;
+		color: FieldText;
+	}
 	body::before {
 		display: none;
 	}
