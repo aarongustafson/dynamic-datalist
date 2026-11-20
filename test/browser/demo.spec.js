@@ -81,6 +81,16 @@ async function contrast(locator, foregroundProperty = 'color') {
 			const style = getComputedStyle(node);
 			if (style.opacity !== '1') throw new Error('Unexpected opacity');
 			background = paint(style.backgroundColor);
+			if (style.backgroundImage !== 'none') {
+				const uniform = style.backgroundImage.match(
+					/^linear-gradient\((.+), \1\)$/,
+				);
+				if (!uniform)
+					throw new Error(
+						'Only uniform color gradients are supported by this contrast check.',
+					);
+				background = paint(uniform[1]);
+			}
 		}
 		if (background[3] !== 255) throw new Error('Expected opaque surface');
 		const foreground = paint(getComputedStyle(element)[foregroundProperty]);
