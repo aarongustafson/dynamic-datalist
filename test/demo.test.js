@@ -19,7 +19,7 @@ describe('shared demo surface contracts', () => {
 		);
 		expect(css).not.toMatch(/opacity:\s*0\.8/);
 		expect(css).not.toMatch(/:focus-visible\s*\{/);
-		expect(css).toMatch(/box-sizing:\s*border-box/);
+		expect(read('demo/demo-shell.css')).toMatch(/box-sizing:\s*border-box/);
 	});
 
 	describe('retained release automation', () => {
