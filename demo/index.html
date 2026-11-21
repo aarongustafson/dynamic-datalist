@@ -4,32 +4,10 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Dynamic `datalist` Web Component Demo</title>
-		<link rel="stylesheet" href="./styles.css" />
 		<link rel="stylesheet" href="./demo-shell.css" />
-		<style>
-			/* Demo-specific styles */
-			.log {
-				margin-block: 1rem;
-				padding: 0.75rem;
-				background: Canvas;
-				color: CanvasText;
-				border-left: 4px solid;
-				font-size: 0.9rem;
-				border-radius: 4px;
-			}
-
-			.log.error {
-				background: #ffebee;
-				color: #4a1010;
-				border-left-color: #a62929;
-			}
-
-			.log.error strong {
-				color: #c62828;
-			}
-		</style>
+		<link rel="stylesheet" href="./styles.css" />
 	</head>
-	<body data-syntax-theme="github">
+	<body data-demo-page="full" data-syntax-theme="github">
 		<a class="skip-link" href="#main">Skip to examples</a>
 		<header>
 			<p class="eyebrow">Web component / Examples</p>
@@ -65,6 +43,9 @@
 				class="enhancement-status"
 				role="status"
 				hidden
+				data-loading-message="Loading optional code highlighting and Copy controls."
+				data-failure-message="MicroLighter could not load. Code remains readable and selectable; the component loads independently."
+				data-theme-failure-message="Code highlighting and Copy controls are available, but the syntax theme could not load. The component loads independently."
 			></p>
 
 			<noscript>
@@ -110,7 +91,7 @@
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example1"
@@ -176,7 +157,7 @@
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example9"
@@ -242,7 +223,7 @@
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example2"
@@ -308,7 +289,7 @@
   &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example3"
@@ -379,7 +360,7 @@
   &lt;/datalist&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example4"
@@ -453,7 +434,7 @@
   &lt;button type="submit"&gt;Search&lt;/button&gt;
 &lt;/form&gt;</code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example5"
@@ -511,7 +492,7 @@
   &lt;button type="submit"&gt;Post&lt;/button&gt;
 &lt;/form&gt;</code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example6"
@@ -578,7 +559,7 @@
   &lt;button type="submit"&gt;Continue&lt;/button&gt;
 &lt;/form&gt;</code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<label for="name"
 									>Name
@@ -679,7 +660,7 @@ const el = document
   });</mark>
 &lt;/script&gt;</code></pre>
 						</micro-lighter>
-						<div class="demo">
+						<div class="demo" data-demo-label="Live example">
 							<form action="#">
 								<dynamic-datalist
 									id="example8"
@@ -735,7 +716,7 @@ const el = document
   &lt;/datalist&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
 					</micro-lighter>
-					<div class="demo">
+					<div class="demo" data-demo-label="Live example">
 						<dynamic-datalist
 							id="example10"
 							endpoint="/api/unavailable"

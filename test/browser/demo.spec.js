@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
+import { readDemoStyles } from './demo-fixture.js';
 
 test.beforeEach(async ({ page }) => {
 	await page.route(
@@ -10,13 +11,7 @@ test.beforeEach(async ({ page }) => {
 
 const source = await readFile('dynamic-datalist.js', 'utf8');
 const definition = await readFile('define.js', 'utf8');
-const css = (
-	await Promise.all(
-		['styles.css', 'demo-shell.css'].map((file) =>
-			readFile(`demo/${file}`, 'utf8'),
-		),
-	)
-).join('\n');
+const css = await readDemoStyles();
 const pages = ['index.html', 'esm.html', 'unpkg.html'];
 
 async function open(
@@ -86,6 +81,16 @@ async function contrast(locator, foregroundProperty = 'color') {
 			const style = getComputedStyle(node);
 			if (style.opacity !== '1') throw new Error('Unexpected opacity');
 			background = paint(style.backgroundColor);
+			if (style.backgroundImage !== 'none') {
+				const uniform = style.backgroundImage.match(
+					/^linear-gradient\((.+), \1\)$/,
+				);
+				if (!uniform)
+					throw new Error(
+						'Only uniform color gradients are supported by this contrast check.',
+					);
+				background = paint(uniform[1]);
+			}
 		}
 		if (background[3] !== 255) throw new Error('Expected opaque surface');
 		const foreground = paint(getComputedStyle(element)[foregroundProperty]);
