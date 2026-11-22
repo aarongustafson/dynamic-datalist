@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/npm/l/@aarongustafson/dynamic-datalist)](https://github.com/aarongustafson/dynamic-datalist/blob/main/LICENSE)
 [![Type definitions](https://img.shields.io/npm/types/@aarongustafson/dynamic-datalist)](https://github.com/aarongustafson/dynamic-datalist/blob/main/dynamic-datalist.d.ts)
 
-Web component that enables you to dynamically update a field’s `datalist` with values retrieved from a URL as the user types
+`<dynamic-datalist>` updates an input’s native `datalist` with suggestions fetched from a URL as the user types. The input remains editable without JavaScript.
 
 ## Demos
 
@@ -24,13 +24,16 @@ npm install @aarongustafson/dynamic-datalist
 
 ### Option 1: Import the class and define manually
 
-Import the class and register the element with your preferred tag name:
+The package’s main import exports the class without registering it. Register
+`<dynamic-datalist>` to use the examples below:
 
 ```javascript
 import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist';
 
-customElements.define('my-datalist', DynamicDatalistElement);
+customElements.define('dynamic-datalist', DynamicDatalistElement);
 ```
+
+You can use your preferred tag name instead; update your HTML to match it.
 
 ### Option 2: Auto-define the custom element (browser environments only)
 
@@ -40,7 +43,10 @@ Use the guarded definition helper to register the element when `customElements` 
 import '@aarongustafson/dynamic-datalist/define.js';
 ```
 
-If you prefer to control when the element is registered, call the helper directly:
+Importing `define.js` also calls `defineDynamicDatalist()`. The helper skips
+registration if the tag is already defined. You can call it again to check
+registration; it returns `true` when a registry is available and `false`
+otherwise:
 
 ```javascript
 import { defineDynamicDatalist } from '@aarongustafson/dynamic-datalist/define.js';
@@ -63,11 +69,16 @@ Wrap an `input` element with `<dynamic-datalist>` and specify an endpoint:
 
 ```html
 <dynamic-datalist endpoint="/api/search">
-  <input type="text" name="search" placeholder="Type to search..." />
+  <label>
+    Search
+    <input type="text" name="search" placeholder="Type to search..." />
+  </label>
 </dynamic-datalist>
 ```
 
-This will make a GET request to `/api/search?query=WHAT_THE_USER_TYPED`.
+As the user types, the component makes a GET request to
+`/api/search?query=WHAT_THE_USER_TYPED`. Your application must provide the
+endpoint; the [demo](./demo/index.html) uses mock responses.
 
 ### Bootstrap Options
 
@@ -76,7 +87,10 @@ for user interaction:
 
 ```html
 <dynamic-datalist endpoint="/api/popular" bootstrap>
-  <input type="text" name="search" placeholder="Search popular options..." />
+  <label>
+    Search
+    <input type="text" name="search" placeholder="Search popular options..." />
+  </label>
 </dynamic-datalist>
 ```
 
@@ -90,39 +104,49 @@ options, just like results fetched after user input.
 
 ```html
 <dynamic-datalist endpoint="/api/search" method="post">
-  <input type="text" name="search" placeholder="Type to search..." />
+  <label>
+    Search
+    <input type="text" name="search" placeholder="Type to search..." />
+  </label>
 </dynamic-datalist>
 ```
 
-This will make a POST request with JSON body: `{ "query": "WHAT_THE_USER_TYPED" }`.
+The component makes a POST request with a JSON body: `{ "query": "WHAT_THE_USER_TYPED" }`.
 
 ### Custom Variable Name
 
 ```html
 <dynamic-datalist endpoint="/api/search" key="term">
-  <input type="text" name="search" placeholder="Type to search..." />
+  <label>
+    Search
+    <input type="text" name="search" placeholder="Type to search..." />
+  </label>
 </dynamic-datalist>
 ```
 
-This will send the query as `/api/search?term=WHAT_THE_USER_TYPED` (GET) or `{ "term": "..." }` (POST).
+The component sends the query as `/api/search?term=WHAT_THE_USER_TYPED` (GET) or `{ "term": "..." }` (POST).
 
 ### Using Existing Datalist
 
-If your input already has a datalist, the component will use and update it:
+If your input references a datalist inside the component, the component reuses it:
 
 ```html
 <dynamic-datalist endpoint="/api/cities">
-  <input type="text" list="cities-list" placeholder="Type a city..." />
+  <label>
+    City
+    <input type="text" list="cities-list" placeholder="Type a city..." />
+  </label>
   <datalist id="cities-list">
     <option>New York</option>
-    <option>Los Angeles</option>
     <option>Los Angeles</option>
     <option>Chicago</option>
   </datalist>
 </dynamic-datalist>
 ```
 
-The component will preserve and update the existing datalist instead of creating a new one.
+The component keeps the datalist element, but a successful response replaces
+its options. Initial suggestions remain available without JavaScript or before
+the first successful response. A failed request leaves the current options intact.
 
 ## API Response Format
 
@@ -171,26 +195,13 @@ element.addEventListener('dynamic-datalist:error', (event) => {
 
 ### Auto-define (Recommended)
 
-```javascript
-import '@aarongustafson/dynamic-datalist/define.js';
-// Registers <dynamic-datalist> when customElements is available
-```
-
-You can also call the helper manually:
-
-```javascript
-import { defineDynamicDatalist } from '@aarongustafson/dynamic-datalist/define.js';
-
-defineDynamicDatalist();
-```
+Use the [guarded definition helper](#option-2-auto-define-the-custom-element-browser-environments-only)
+for automatic registration in browsers.
 
 ### Manual Registration
 
-```javascript
-import { DynamicDatalistElement } from '@aarongustafson/dynamic-datalist';
-
-customElements.define('my-datalist', DynamicDatalistElement);
-```
+Use the [class-only import](#option-1-import-the-class-and-define-manually)
+to choose the tag name and registration timing.
 
 ## Demo styling and native fallbacks
 
@@ -198,17 +209,6 @@ The component doesn’t paint an input or suggestion menu. The browser owns the
 native `input` and `datalist` behavior, including keyboard interaction, focus,
 and platform-specific popup rendering. Keep an authored label for each input;
 use `aria-describedby` to connect separate instructions.
-
-The demos pair reading surfaces with `Canvas`/`CanvasText`, fields with
-`Field`/`FieldText`, and code and buttons with `ButtonFace`/`ButtonText`.
-Demo fields use a flat, solid foreground-colored border; native focus and
-suggestion-menu rendering remain unchanged.
-Supporting text inherits its surface’s foreground. The Canvas-backed footer
-uses an 80% foreground mix where supported, with full-strength text in forced
-colors and increased contrast. Native focus and automatic forced-color
-adjustment remain enabled. The error log keeps its deliberate pale-red theme
-with a complete dark-text/light-surface pair and an explicit “Error” label.
-If you change a surface, check its text, links, boundaries, and focus together.
 
 Without JavaScript or after a module failure, the inputs remain editable.
 Authored datalists keep their initial suggestions. A successful response replaces

@@ -44,8 +44,11 @@
 				<h2>Initial suggestions</h2>
 				<p>
 					The <code>bootstrap</code> attribute loads suggestions
-					without waiting for typing. If the module or request fails,
-					you can still enter a value.
+					without waiting for typing. This page uses mock responses;
+					your application must provide its own endpoint. Without
+					JavaScript, or if the module fails, you can still enter a
+					value or use the initial suggestion. A failed request keeps
+					the current suggestions.
 				</p>
 				<div class="code-demo-pair">
 					<micro-lighter
@@ -63,7 +66,18 @@
   &lt;datalist id="demo-options"&gt;
     &lt;option&gt;Popular option&lt;/option&gt;
   &lt;/datalist&gt;
-<mark>&lt;/dynamic-datalist&gt;</mark></code></pre>
+<mark>&lt;/dynamic-datalist&gt;</mark>
+
+&lt;script type="module"&gt;
+  <mark>import { DynamicDatalistElement } from 'https://esm.sh/@aarongustafson/dynamic-datalist@2.2.3/dynamic-datalist.js?bundle&amp;target=es2022';
+
+  if (!customElements.get('dynamic-datalist')) {
+    customElements.define(
+      'dynamic-datalist',
+      DynamicDatalistElement,
+    );
+  }</mark>
+&lt;/script&gt;</code></pre>
 					</micro-lighter>
 					<div class="demo" data-demo-label="Live example">
 						<dynamic-datalist endpoint="/api/demo" bootstrap>

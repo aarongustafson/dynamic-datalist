@@ -13,16 +13,17 @@
 			<p class="eyebrow">Web component / Examples</p>
 			<h1>&lt;dynamic-datalist&gt;</h1>
 			<p class="lede">
-				A web component that enables dynamic
-				<code>datalist</code> elements with values fetched from an API
-				endpoint as the user types. See the
+				This component updates an input’s native
+				<code>datalist</code> with suggestions fetched from a URL as you
+				type. See the
 				<a href="../">README</a>
 				for installation and API documentation.
 			</p>
 			<p>
-				<strong>How it works:</strong> As you type in the input fields
-				below, the component fetches suggestions from a mock API
-				endpoint and populates the datalist with options.
+				These examples use mock responses, not a live API. Your
+				application must provide its own endpoint. Without JavaScript,
+				the fields remain editable and authored suggestions remain
+				available.
 			</p>
 			<nav aria-label="Component resources">
 				<a
@@ -51,20 +52,20 @@
 			<noscript>
 				<p>
 					Suggestions won’t update without JavaScript. You can still
-					type a value, and the City field keeps its initial
-					suggestions.
+					type a value, and the City and Destination fields keep their
+					initial suggestions.
 				</p>
 			</noscript>
 			<!-- Basic GET Request -->
 			<section>
 				<h2>Basic GET Request</h2>
 				<p>
-					Simple autocomplete that fetches options using a GET
-					request.
+					Wrap a labeled input in
+					<code>&lt;dynamic-datalist&gt;</code> and set
+					<code>endpoint</code> to your API’s URL.
 				</p>
 
 				<div class="demo-section">
-					<h3>Default GET Request</h3>
 					<p>
 						Using <code>endpoint="/api/search"</code> makes a GET
 						request to
@@ -125,12 +126,11 @@
 			<section>
 				<h2>Bootstrap Options</h2>
 				<p>
-					Populate the datalist on the first available frame without
+					Populate the datalist when the component loads, without
 					waiting for user input.
 				</p>
 
 				<div class="demo-section">
-					<h3>Initial Suggestions</h3>
 					<p>
 						Adding <code>bootstrap</code> requests
 						<code>/api/bootstrap</code> without a query.
@@ -192,11 +192,10 @@
 			<section>
 				<h2>POST Request</h2>
 				<p>
-					Send the search query using a POST request with JSON body.
+					Send the search query using a POST request with a JSON body.
 				</p>
 
 				<div class="demo-section">
-					<h3>POST Method</h3>
 					<p>
 						Using <code>method="post"</code> makes a POST request
 						with JSON body: <code>{ "query": "..." }</code>.
@@ -260,7 +259,6 @@
 				<p>Change the variable name used for the query parameter.</p>
 
 				<div class="demo-section">
-					<h3>Custom Key Attribute</h3>
 					<p>
 						Using <code>key="term"</code> sends the query as
 						<code>/api/search?term=...</code> (GET) or
@@ -306,7 +304,7 @@
 											placeholder="Type a term..."
 										/>
 										<small
-											>Uses "term" instead of "query" as
+											>Uses “term” instead of “query” as
 											the parameter name</small
 										>
 									</label>
@@ -327,12 +325,12 @@
 				<p>Enhance existing datalist elements with dynamic fetching.</p>
 
 				<div class="demo-section">
-					<h3>Pre-populated Datalist</h3>
 					<p>
 						When the input already has a datalist, the component
 						will reuse that list and replace its options after a
 						successful response. Initial options remain available
-						before enhancement or when a request fails.
+						without JavaScript or before the first successful
+						response. A failed request keeps the current options.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -427,8 +425,7 @@
         type="search"
         id="product-search"
         name="q"
-        placeholder="Search for products..."
-        required /&gt;
+        placeholder="Search for products..." /&gt;
     &lt;/label&gt;
   <mark>&lt;/dynamic-datalist&gt;</mark>
   &lt;button type="submit"&gt;Search&lt;/button&gt;
@@ -463,8 +460,9 @@
 				<div class="demo-section">
 					<h3>User Mention/Tag</h3>
 					<p>
-						Autocomplete for mentioning users or adding tags, often
-						triggered by special characters.
+						Fetch username suggestions as you type. The mock API
+						accepts a name with or without a leading <code>@</code>;
+						the component doesn’t wait for a special character.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -606,18 +604,17 @@
 			<section>
 				<h2>Event Handling</h2>
 				<p>
-					The component emits custom events that you can listen to for
-					advanced functionality.
+					Listen for initialization, updated suggestions, and request
+					errors.
 				</p>
 
 				<div class="demo-section">
-					<h3>Listening to Events</h3>
 					<p>
 						The component fires three custom events:
 						<code>dynamic-datalist:ready</code>,
 						<code>dynamic-datalist:update</code>, and
 						<code>dynamic-datalist:error</code>. This demo logs all
-						events to show you what's happening under the hood.
+						events in the visible log below the field.
 					</p>
 					<div class="code-demo-pair">
 						<micro-lighter
@@ -630,33 +627,45 @@
 								aria-label="Listening to Events code 9"
 								tabindex="0"
 							><code><mark>&lt;dynamic-datalist
-  id="event-demo"
+  id="example8"
   endpoint="/api/search"&gt;</mark>
-  &lt;input type="text" /&gt;
+  &lt;label for="search8"&gt;Search with event logging
+    &lt;input
+      type="text"
+      id="search8"
+      name="search"
+      placeholder="Type to trigger events..." /&gt;
+  &lt;/label&gt;
 <mark>&lt;/dynamic-datalist&gt;</mark>
+&lt;div id="log8" class="log"&gt;
+  Ready: Component initialized
+&lt;/div&gt;
 
 &lt;script&gt;
-const el = document
-  .getElementById('event-demo');
+const element = document.getElementById('example8');
+const log = document.getElementById('log8');
 
-<mark>el.addEventListener(
+<mark>element.addEventListener(
   'dynamic-datalist:ready',
-  (e) =&gt; {
-    console.log('Ready:', e.detail);
+  () =&gt; {
+    log.textContent = 'Ready: Component initialized';
+    log.className = 'log';
   });</mark>
 
-<mark>el.addEventListener(
+<mark>element.addEventListener(
   'dynamic-datalist:update',
-  (e) =&gt; {
-    console.log('Options:',
-      e.detail.options);
+  (event) =&gt; {
+    const options = event.detail.options;
+    if (!Array.isArray(options)) return;
+    log.textContent = `Updated: Received ${options.length} option${options.length !== 1 ? 's' : ''}: ${options.slice(0, 3).join(', ')}${options.length &gt; 3 ? ', ...' : ''}`;
+    log.className = 'log';
   });</mark>
 
-<mark>el.addEventListener(
+<mark>element.addEventListener(
   'dynamic-datalist:error',
-  (e) =&gt; {
-    console.error('Error:',
-      e.detail.error);
+  (event) =&gt; {
+    log.textContent = `Error: ${event.detail.error.message}. You can still type a value; existing suggestions remain available.`;
+    log.className = 'log error';
   });</mark>
 &lt;/script&gt;</code></pre>
 						</micro-lighter>
