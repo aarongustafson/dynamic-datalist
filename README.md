@@ -14,6 +14,10 @@
 - [Unpkg Demo](https://aarongustafson.github.io/dynamic-datalist/demo/unpkg.html) ([Source](./demo/unpkg.html))
 - [ESM.sh Demo](https://aarongustafson.github.io/dynamic-datalist/demo/esm.html) ([Source](./demo/esm.html))
 
+Each demo example has a descriptive anchor for direct links, such as
+[existing datalists](https://aarongustafson.github.io/dynamic-datalist/demo/#existing-datalist)
+and [loading errors](https://aarongustafson.github.io/dynamic-datalist/demo/#loading-errors).
+
 ## Installation
 
 ```bash
