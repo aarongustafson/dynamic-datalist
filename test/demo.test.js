@@ -68,6 +68,25 @@ describe('shared demo surface contracts', () => {
 	});
 
 	for (const name of ['index', 'esm', 'unpkg']) {
+		it(`${name} gives every code/live example a unique linkable block`, () => {
+			const template = document.createElement('template');
+			template.innerHTML = read(`demo/${name}.html`);
+			const examples =
+				template.content.querySelectorAll('.code-demo-pair');
+			expect(examples.length).toBeGreaterThan(0);
+			const ids = [...template.content.querySelectorAll('[id]')].map(
+				(element) => element.id,
+			);
+			for (const example of examples) {
+				const block = example.closest('[id]');
+				expect(block?.id, 'Example block needs an anchor').toBeTruthy();
+				expect(block.matches('section, .demo-section')).toBe(true);
+				expect(block.querySelector('h2, h3')).not.toBeNull();
+				expect(ids.filter((id) => id === block.id)).toHaveLength(1);
+				expect(template.content.getElementById(block.id)).toBe(block);
+			}
+		});
+
 		it(`${name} retains code/live layout, native fallback, and shared credit`, () => {
 			const html = read(`demo/${name}.html`);
 			expect(html).toContain('class="code-demo-pair"');
